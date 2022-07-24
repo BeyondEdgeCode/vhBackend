@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/vhBackend.iml" filepath="$PROJECT_DIR$/.idea/vhBackend.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../vhLanding/.idea/vhLanding.iml" filepath="$PROJECT_DIR$/../vhLanding/.idea/vhLanding.iml" />
     </modules>
   </component>
 </project>

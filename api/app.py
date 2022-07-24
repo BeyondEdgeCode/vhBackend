@@ -3,7 +3,7 @@ from alchemical.flask import Alchemical
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from flask_jwt_extended import JWTManager
-from config import Config
+from .config import Config
 
 db = Alchemical()
 migrate = Migrate()
@@ -54,3 +54,4 @@ def create_app(config_class=Config):
         return response
 
     return app
+
