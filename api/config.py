@@ -18,6 +18,7 @@ class Config:
     ALCHEMICAL_ENGINE_OPTIONS = {'echo': as_bool(os.environ.get('SQL_ECHO'))}
 
     # security options
-    JWT_SECRET_KEY = os.environ.get('SECRET_KEY', 'top-secret!')
-    USE_CORS = as_bool(os.environ.get('USE_CORS') or 'yes')
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'SecretKeyTestingPurposes_12bbcydsv')
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'JWTTestingPurposes_4n5guyviub')
+    USE_CORS = as_bool(os.environ.get('USE_CORS') or 'false')
     CORS_SUPPORTS_CREDENTIALS = True

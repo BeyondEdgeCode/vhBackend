@@ -48,11 +48,12 @@ class User(Updatable, db.Model):
     # Основная информация
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(120), index=True, unique=True, nullable=False)
+    email_confirmed = Column(Boolean, default=False)
     password = Column(String(128))
     role_fk = Column(Integer, ForeignKey('UserRole.id'))
 
     # Личная информация
-    firstName = Column(String(64))
+    firstName = Column(String(64), index=True)
     lastName = Column(String(64), index=True)
     birthday = Column(DateTime)
 
@@ -71,6 +72,8 @@ class User(Updatable, db.Model):
     reserved = relationship('ProductReserve', back_populates='user')
     likes = relationship('Favourite', back_populates='user')
     basket = relationship('Basket', back_populates='user')
+    reviews = relationship('Reviews', back_populates='user')
+    email_confirmations = relationship('EmailConfirmation', back_populates='user')
 
     def check_password(self, password) -> bool:
         return check_password_hash(self.password, password)
@@ -85,6 +88,19 @@ class User(Updatable, db.Model):
             return False
 
 
+class EmailConfirmation(db.Model):
+    __tablename__ = 'EmailConfirmation'
+
+    id = Column(Integer, primary_key=True)
+    user_fk = Column(Integer, ForeignKey('Users.id'), nullable=False)
+    key = Column(String(512), nullable=False, index=True)
+    used = Column(Boolean, default=False)
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, default=lambda: datetime.utcnow()+timedelta(days=3))
+
+    user = relationship('User', back_populates='email_confirmations')
+
 
 class Shop(db.Model):
     __tablename__ = 'Shop'
@@ -98,7 +114,7 @@ class Shop(db.Model):
     description = Column(String(512))
     preview = Column(String(1024))
 
-    available = relationship('ProductAvailability', back_populates='product')
+    available = relationship('ProductAvailability', back_populates='shop')
     orders = relationship('Order', back_populates='shop')
 
 
@@ -166,13 +182,15 @@ class Product(db.Model):
 
     # referenced_product = relationship('Product', back_populates='referenced_product')
     referenced_product = relationship('Product')
-    category = relationship('Category', back_populates='product')
-    subcategory = relationship('SubCategory', back_populates='product')
+    categories = relationship('Category', back_populates='products')
+    subcategory = relationship('SubCategory', back_populates='products')
     available = relationship('ProductAvailability', back_populates='product')
     reserved = relationship('ProductReserve', back_populates='product')
     liked = relationship('Favourite', back_populates='product')
     in_baskets = relationship('Basket', back_populates='product')
     image = relationship('ObjectStorage', back_populates='product')
+    inorders = relationship('OrderItem', back_populates='product')
+    reviews = relationship('Reviews', back_populates='product')
 
 
 class ProductAvailability(db.Model):
@@ -192,23 +210,23 @@ class ProductReserve(db.Model):
     __tablename__ = 'ProductReserve'
 
     id = Column(Integer, primary_key=True)
-    user_fk = Column(Integer, ForeignKey('User.id'))
+    user_fk = Column(Integer, ForeignKey('Users.id'))
     product_fk = Column(Integer, ForeignKey('Product.id', ondelete='CASCADE'))
     pa_fk = Column(Integer, ForeignKey('ProductAvailability.id', ondelete='CASCADE')) # ProductAvailability_FK
-    # order = Column(Integer, ForeignKey('Order.id')) TODO: add Order
+    order_fk = Column(Integer, ForeignKey('Order.id'))
     amount = Column(Integer, nullable=False)
 
     user = relationship('User', back_populates='reserved')
     product = relationship('Product', back_populates='reserved')
     pa = relationship('ProductAvailability', back_populates='reserved')
-    # order = relationship('Order', back_populates='reserved')
+    order = relationship('Order', back_populates='reserved')
 
 
 class Favourite(db.Model):
     __tablename__ = 'Favourite'
 
     id = Column(Integer, primary_key=True)
-    user_fk = Column(Integer, ForeignKey('User.id'))
+    user_fk = Column(Integer, ForeignKey('Users.id'))
     product_fk = Column(Integer, ForeignKey('Product.id'), index=True)
 
     user = relationship('User', back_populates='likes')
@@ -219,7 +237,7 @@ class Basket(db.Model):
     __tablename__ = 'Basket'
 
     id = Column(Integer, primary_key=True)
-    user_fk = Column(Integer, ForeignKey('User.id'), nullable=False, index=True)
+    user_fk = Column(Integer, ForeignKey('Users.id'), nullable=False, index=True)
     product_fk = Column(Integer, ForeignKey('Product.id'), nullable=False)
     amount = Column(Integer, nullable=False, default=1)
 
@@ -231,7 +249,7 @@ class Order(db.Model):
     __tablename__ = 'Order'
 
     id = Column(Integer, primary_key=True)
-    user_fk = Column(Integer, ForeignKey('User.id'), nullable=False, index=True)
+    user_fk = Column(Integer, ForeignKey('Users.id'), nullable=False, index=True)
     status = Column(Enum(OrderStatus), nullable=False)
     delivery_type = Column(Enum(DeliveryType), nullable=False)
     payment_type = Column(Enum(PaymentType), nullable=False)
@@ -244,6 +262,8 @@ class Order(db.Model):
     updated_at = Column(DateTime, default=datetime.utcnow)
 
     shop = relationship('Shop', back_populates='orders')
+    reserved = relationship('ProductReserve', back_populates='order')
+    items = relationship('OrderItem', back_populates='order')
 
 
 class OrderItem(db.Model):
@@ -251,9 +271,54 @@ class OrderItem(db.Model):
 
     id = Column(Integer, primary_key=True)
     product_fk = Column(Integer, ForeignKey('Product.id'), nullable=False)
+    order_fk = Column(Integer, ForeignKey('Order.id'), nullable=False)
     price = Column(Float(2), nullable=False)
     amount = Column(Integer, nullable=False)
 
-#     TODO: Заказы, Настройки, Отзывы, Акции, Скидочные карты, Промокоды
+    product = relationship('Product', back_populates='inorders')
+    order = relationship('Order', back_populates='items')
 
 
+class Settings(db.Model):
+    __tablename__ = 'Settings'
+
+    id = Column(Integer, primary_key=True)
+    key = Column(String(128), index=True)
+    value = Column(String(128))
+
+    def __repr__(self):
+        return f'{self.__tablename__}({self.key}, {self.value})'
+
+
+class Reviews(db.Model):
+    __tablename__ = 'Reviews'
+
+    id = Column(Integer, primary_key=True)
+    product_fk = Column(Integer, ForeignKey('Product.id'), nullable=False)
+    user_fk = Column(Integer, ForeignKey('Users.id'), nullable=False)
+    stars = Column(Integer, nullable=False)
+    text = Column(String(1024))
+
+    product = relationship('Product', back_populates='reviews')
+    user = relationship('User', back_populates='reviews')
+
+
+class PromoType(db.Model):
+    __tablename__ = 'PromoType'
+    id = Column(Integer, primary_key=True)
+    type = Column(String(64), nullable=False)
+
+    promocodes = relationship('Promocode', back_populates='promotype')
+
+
+class Promocode(db.Model):
+    __tablename__ = 'Promocode'
+
+    id = Column(Integer, primary_key=True)
+    promotype_fk = Column(Integer, ForeignKey('PromoType.id'), nullable=False)
+    key = Column(String(64), nullable=False, index=True)
+    value = Column(Integer, nullable=False)
+
+    promotype = relationship('PromoType', back_populates='promocodes')
+
+#     TODO: Tokens, Акции, Скидочные карты
