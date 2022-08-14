@@ -1,4 +1,5 @@
-from flask import Flask, redirect, url_for, request
+from apifairy import APIFairy
+from flask import Flask, request
 from alchemical.flask import Alchemical
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
@@ -9,6 +10,7 @@ db = Alchemical()
 migrate = Migrate()
 ma = Marshmallow()
 jwt = JWTManager()
+apifairy = APIFairy()
 
 
 def create_app(config_class=Config):
@@ -21,25 +23,12 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     ma.init_app(app)
     jwt.init_app(app)
+    apifairy.init_app(app)
     # if app.config['USE_CORS']:  # pragma: no branch
     #     cors.init_app(app)
 
-    # blueprints
-    # from api.errors import errors
-    # app.register_blueprint(errors)
-    # from api.tokens import tokens
-    # app.register_blueprint(tokens, url_prefix='/api')
-    # from api.users import users
-    # app.register_blueprint(users, url_prefix='/api')
-    # from api.posts import posts
-    # app.register_blueprint(posts, url_prefix='/api')
-    # from api.fake import fake
-    # app.register_blueprint(fake)
-    from api.testing import testing
-    app.register_blueprint(testing)
-
-    from api.auth import auth
-    app.register_blueprint(auth)
+    from .router import router
+    app.register_blueprint(router)
 
     # define the shell context
     @app.shell_context_processor

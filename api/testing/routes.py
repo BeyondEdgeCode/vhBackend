@@ -1,0 +1,17 @@
+from api.models import User, Shop, Settings
+from api.utils import get_all, get_first
+from flask import jsonify
+from flask_jwt_extended import jwt_required
+
+
+@jwt_required()
+def get_shops():
+    query = get_all(Settings.select())
+    parsed_query = [[r.key, r.value] for r in query]
+    return jsonify(parsed_query)
+
+
+@jwt_required()
+def get_users():
+    users = get_all(User.select())
+    return jsonify([[u.email, u.password] for u in users])

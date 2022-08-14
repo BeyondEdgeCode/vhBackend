@@ -1,3 +1,4 @@
+import datetime
 import os
 from dotenv import load_dotenv
 
@@ -20,5 +21,7 @@ class Config:
     # security options
     SECRET_KEY = os.environ.get('SECRET_KEY', 'SecretKeyTestingPurposes_12bbcydsv')
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'JWTTestingPurposes_4n5guyviub')
+    JWT_COOKIE_SECURE = as_bool(os.environ.get('JWT_COOKIE_SECURE'))
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=7)
     USE_CORS = as_bool(os.environ.get('USE_CORS') or 'false')
     CORS_SUPPORTS_CREDENTIALS = True

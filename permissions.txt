@@ -1,0 +1,4 @@
+"admin.permissions.create"
+"admin.roles.create"
+"admin.roles.assign"
+"admin.roles.read"

@@ -1,10 +1,11 @@
 import enum
 from datetime import datetime, timedelta
 from sqlalchemy import Column, ForeignKey
-from sqlalchemy import Integer, String, Float, DateTime, Boolean, JSON, Enum
+from sqlalchemy import Integer, String, Float, DateTime, Boolean, JSON, Enum, func
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.app import db
+from flask_jwt_extended import get_current_user
 
 
 class Updatable:
@@ -74,6 +75,7 @@ class User(Updatable, db.Model):
     basket = relationship('Basket', back_populates='user')
     reviews = relationship('Reviews', back_populates='user')
     email_confirmations = relationship('EmailConfirmation', back_populates='user')
+    revokedtokens = relationship('RevokedTokens', back_populates='user')
 
     def check_password(self, password) -> bool:
         return check_password_hash(self.password, password)
@@ -124,22 +126,39 @@ class UserRole(db.Model):
     id = Column(Integer, primary_key=True)
     roleName = Column(String(64), unique=True, nullable=False)
     roleDescription = Column(String(128))
+    is_default = Column(Boolean, default=False)
 
     users = relationship('User', back_populates='role')
-    rights = relationship('UserRoleRights', back_populates='role')
+    permissions = relationship('UserRolePermission', back_populates='role')
 
     def get_rights(self):
-        return [i.right for i in self.rights]
+        return [i.permission.key for i in self.permissions]
+
+    def __repr__(self):
+        return self.roleName
+
+    def __str__(self):
+        return self.roleName
 
 
-class UserRoleRights(db.Model):
-    __tablename__ = 'UserRoleRights'
+class UserRolePermission(db.Model):
+    __tablename__ = 'UserRolePermission'
 
     id = Column(Integer, primary_key=True)
     role_fk = Column(Integer, ForeignKey('UserRole.id', ondelete='CASCADE'))
-    right = Column(String(128), nullable=False)
+    permission_fk = Column(Integer, ForeignKey('Permission.id'), nullable=False)
 
-    role = relationship('UserRole', back_populates='rights')
+    role = relationship('UserRole', back_populates='permissions')
+    permission = relationship('Permission', back_populates='roles')
+
+class Permission(db.Model):
+    __tablename__ = 'Permission'
+
+    id = Column(Integer, primary_key=True)
+    key = Column(String(128), nullable=False, unique=True)
+    description = Column(String(128))
+
+    roles = relationship('UserRolePermission', back_populates='permission')
 
 
 class Category(db.Model):
@@ -322,3 +341,13 @@ class Promocode(db.Model):
     promotype = relationship('PromoType', back_populates='promocodes')
 
 #     TODO: Tokens, Акции, Скидочные карты
+class RevokedTokens(db.Model):
+    __tablename__ = 'RevokedTokens'
+
+    id = Column(Integer, primary_key=True)
+    jti = Column(String(36), nullable=False, index=True)
+    type = Column(String(16), nullable=False)
+    user_fk = Column(Integer, ForeignKey('Users.id'), nullable=False, default=lambda: get_current_user().id)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+
+    user = relationship('User', back_populates='revokedtokens')
