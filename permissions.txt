@@ -2,3 +2,5 @@
 "admin.roles.create"
 "admin.roles.assign"
 "admin.roles.read"
+"admin.category.create"
+"admin.category.edit"

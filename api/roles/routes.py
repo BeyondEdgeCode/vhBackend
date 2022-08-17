@@ -41,6 +41,7 @@ def add():
     return jsonify(code=200, id=userRole.id)
 
 
+# TODO: /roles/delete
 @jwt_required()
 def delete():
     try:
@@ -69,6 +70,7 @@ def assign():
 
 
 @jwt_required()
+@permission_required('admin.roles.permissions.edit')
 def add_permission():
     try:
         roleId = int(request.json['roleId'])
@@ -76,7 +78,7 @@ def add_permission():
     except KeyError as e:
         return catch_exception(e, 'Значение поля некорректно')
 
-    if not (permission:= db.session.get(Permission, permissionId)):
+    if not (permission := db.session.get(Permission, permissionId)):
         return jsonify(code=400, error='Permission not found in database')
 
     if get_first(UserRolePermission.select().where(and_(UserRolePermission.permission == permission,
@@ -89,3 +91,22 @@ def add_permission():
     db.session.commit()
 
     return jsonify(id=role_permission.id)
+
+
+@jwt_required()
+@permission_required('admin.roles.permissions.edit')
+def delete_permission():
+    try:
+        roleId = int(request.json['roleId'])
+        permissionId = int(request.json['permissionId'])
+    except KeyError as e:
+        return catch_exception(e, 'Значение поля некорректно')
+
+    role_permission = get_first(
+        UserRolePermission.select().where(and_(UserRolePermission.role_fk == roleId,
+                                               UserRolePermission.permission_fk == permissionId)))
+
+    db.session.delete(role_permission)
+    db.session.commit()
+
+    return jsonify(code=200)

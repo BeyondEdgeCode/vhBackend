@@ -1,10 +1,10 @@
 from functools import wraps
 
 from .app import db
-from flask import request, jsonify
+from flask import request, jsonify, logging, current_app
 from flask_jwt_extended import current_user
-from werkzeug.exceptions import BadRequest, HTTPException
 # from flask_jwt_extended import
+
 
 def get_first(query):
     scalar = db.session.scalar(query)
@@ -23,9 +23,14 @@ def permission_required(permission):
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
-            if permission in current_user.role.get_rights():
+            permissions = current_user.role.get_rights()
+            if 'admin.all' in permissions or permission in permissions:
+                current_app.logger.info(f'{current_user.role.roleName}->{current_user.email} requested access to '
+                                        f'{request.path} -> ACCESS GRANTED')
                 return fn(*args, **kwargs)
             else:
+                current_app.logger.info(f'{current_user.role.roleName}->{current_user.email} requested access to '
+                                        f'{request.path} -> ACCESS DENIED')
                 return jsonify(msg=f'Role <{permission}> not found in role <{current_user.role.roleName}>'), 403
 
         return decorator
