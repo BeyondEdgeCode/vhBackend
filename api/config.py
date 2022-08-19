@@ -25,3 +25,6 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=7)
     USE_CORS = as_bool(os.environ.get('USE_CORS') or 'false')
     CORS_SUPPORTS_CREDENTIALS = True
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    AWS_REGION = 'ru-central1'

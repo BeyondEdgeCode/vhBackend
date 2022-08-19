@@ -18,3 +18,7 @@ def get_shops():
 def get_users():
     users = get_all(User.select())
     return jsonify([[u.email, u.password] for u in users])
+
+
+def echo():
+    return jsonify(status='ok')

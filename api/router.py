@@ -6,6 +6,7 @@ from .roles import roles
 from .permissions import permissions
 from .category import category
 from .product import product
+from .objectstorage import s3
 
 from flask_jwt_extended import get_jwt, create_access_token, get_jwt_identity, set_access_cookies
 from datetime import datetime, timedelta, timezone
@@ -18,6 +19,7 @@ router.register_blueprint(roles)
 router.register_blueprint(permissions)
 router.register_blueprint(category)
 router.register_blueprint(product)
+router.register_blueprint(s3)
 
 
 @auth.after_request
