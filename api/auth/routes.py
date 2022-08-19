@@ -65,7 +65,7 @@ def register():
     if get_first_or_false(User.select().where(User.email == email)):
         return jsonify(internal_code=1003, error='Email is used'), 400
 
-    default_role = get_first(UserRole.select().where(UserRole.is_default == 1))
+    default_role = get_first(UserRole.select().where(UserRole.is_default == True))
     user = User(email=email, password=generate_password_hash(password), birthday=birthday, role=default_role)
     db.session.add(user)
     db.session.commit()
