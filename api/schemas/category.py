@@ -22,6 +22,27 @@ class CategorySchema(ma.SQLAlchemySchema):
     subcategories = ma.Nested(SubCategorySchema, dump_only=True, many=True)
 
 
+class CategoryInfoSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Category
+        include_fk = True
+
+    id = ma.auto_field(dump_only=True)
+    title = ma.auto_field(dump_only=True)
+
+
+class SearchByCategorySchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Category
+
+    id = ma.auto_field(required=True)
+
+
+class SearchBySubCategorySchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = SubCategory
+
+    id = ma.auto_field(required=True)
 
 
 

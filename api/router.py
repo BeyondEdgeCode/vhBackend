@@ -1,9 +1,12 @@
 from flask import Blueprint
+
 from .auth import auth
 from .testing import testing
 from .roles import roles
 from .permissions import permissions
 from .category import category
+from .product import product
+
 from flask_jwt_extended import get_jwt, create_access_token, get_jwt_identity, set_access_cookies
 from datetime import datetime, timedelta, timezone
 
@@ -14,6 +17,8 @@ router.register_blueprint(testing)
 router.register_blueprint(roles)
 router.register_blueprint(permissions)
 router.register_blueprint(category)
+router.register_blueprint(product)
+
 
 @auth.after_request
 def refresh_expiring_jwts(response):

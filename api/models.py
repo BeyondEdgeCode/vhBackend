@@ -64,7 +64,7 @@ class User(Updatable, db.Model):
     building = Column(String(64))
     flat = Column(String(32))
     zipcode = Column(Integer)
-    # test
+
     # Системная информация
     notificationsAgree = Column(Boolean, default=True)
     registrationDate = Column(DateTime, default=datetime.utcnow)
