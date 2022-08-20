@@ -1,5 +1,5 @@
 from flask import request
-from api.models import Product
+from api.models import Product, ProductAvailability, Shop
 from api import db
 from api.schemas.product import ProductSchema, ProductCreateSchema
 from api.schemas.category import SearchByCategorySchema, SearchBySubCategorySchema
@@ -36,4 +36,15 @@ def create(args):
     product = Product(**args)
     db.session.add(product)
     db.session.commit()
+
+    shops = db.session.scalars(Shop.select())
+    for shop in shops:
+        db.session.add(ProductAvailability(product=product, shop=shop, amount=0))
+    db.session.commit()
+
     return product
+
+
+# @jwt_required()
+# @permission_required('admin.product.delete')
+# @body()

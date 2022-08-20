@@ -1,8 +1,18 @@
 from api.app import ma
-from api.models import Product
+from api.models import Product, ProductAvailability
 from .category import CategoryInfoSchema
+from .shop import ShortShopSchema
 from marshmallow import validate, validates, validates_schema, \
     ValidationError, post_dump
+
+class ProductAvailabilitySchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ProductAvailability
+        include_fk = True
+        ordered = True
+
+    shop = ma.Nested(ShortShopSchema)
+    amount = ma.auto_field()
 
 class ReferencedProductSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -26,6 +36,8 @@ class ProductSchema(ma.SQLAlchemySchema):
     price = ma.auto_field(dump_only=True)
     referenced_product = ma.Nested(ReferencedProductSchema, dump_only=True, many=True)
     specifications = ma.auto_field(dump_only=True)
+
+    available = ma.Nested(ProductAvailabilitySchema, dump_only=True, many=True)
 
 
 class ProductCreateSchema(ma.SQLAlchemySchema):
