@@ -17,7 +17,7 @@ class Config:
     ALCHEMICAL_DATABASE_URL = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'db.sqlite')
     ALCHEMICAL_ENGINE_OPTIONS = {'echo': as_bool(os.environ.get('SQL_ECHO'))}
-
+    UPLOAD_FOLDER = './api/uploads'
     # security options
     SECRET_KEY = os.environ.get('SECRET_KEY', 'SecretKeyTestingPurposes_12bbcydsv')
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'JWTTestingPurposes_4n5guyviub')

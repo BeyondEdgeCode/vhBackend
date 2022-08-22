@@ -1,10 +1,25 @@
+import os
+
 import boto3
 from flask import current_app, jsonify, request
+from werkzeug.utils import secure_filename
+
 from api.utils import permission_required
 from flask_jwt_extended import jwt_required
 from api.models import ObjectStorage
 from api import db
 import urllib
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def get_extension(filename):
+    return filename.rsplit('.', 1)[1].lower()
 
 
 def create_s3_session():
@@ -26,16 +41,30 @@ def get_all_items():
     return jsonify(s3.list_objects(Bucket='vapehookahstatic')['Contents'])
 
 
-def get_file():
-    key = request.json['key']
+@jwt_required()
+@permission_required('admin.s3.upload')
+def upload():
+    if 'image' not in request.files:
+        return jsonify(code=400, error='File not found in payload'), 400
 
-    # s3 = create_s3_session()
+    file = request.files['image']
+    if file and allowed_file(file.filename):
+        file_extension = get_extension(file.filename)
+        filename = str(hash(file.filename)*-1) + '.' + file_extension
+        saved_filename = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
 
-    # presigned_url = s3.generate_presigned_url(
-    #     "get_object",
-    #     Params={"Bucket": "vapehookahstatic", "Key": key},
-    #     ExpiresIn=3600,
-    # )
-    file = db.session.scalar(ObjectStorage.select().where(ObjectStorage.id == key))
-    url = 'https://storage.yandexcloud.net/vapehookahstatic/' + urllib.parse.quote(file.link)
-    return jsonify(url=url)
+        current_app.logger.info(file_extension)
+        current_app.logger.info(filename)
+        current_app.logger.info(saved_filename)
+
+        file.save(saved_filename)
+
+        s3 = create_s3_session()
+        s3.upload_file(saved_filename, 'vapehookahstatic', filename)
+
+        obj = ObjectStorage(link=filename)
+        db.session.add(obj)
+        db.session.commit()
+        return jsonify(code=200, id=obj.id)
+    return jsonify(code=400, error='File extension is not allowed')
+
