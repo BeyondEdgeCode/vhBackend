@@ -6,6 +6,7 @@ from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.app import db
 from flask_jwt_extended import get_current_user
+import urllib
 
 
 class Updatable:
@@ -211,6 +212,9 @@ class Product(db.Model):
     inorders = relationship('OrderItem', back_populates='product')
     reviews = relationship('Reviews', back_populates='product')
 
+    @property
+    def image_link(self):
+        return 'https://storage.yandexcloud.net/vapehookahstatic/' + urllib.parse.quote(self.image.link)
 
 class ProductAvailability(db.Model):
     __tablename__ = 'ProductAvailability'

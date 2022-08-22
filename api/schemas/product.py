@@ -22,6 +22,7 @@ class ReferencedProductSchema(ma.SQLAlchemySchema):
     id = ma.auto_field(dump_only=True)
     title = ma.auto_field(dump_only=True)
     specifications = ma.auto_field(dump_only=True)
+    image_link = ma.String(dump_only=True)
 
 
 class ProductSchema(ma.SQLAlchemySchema):
@@ -36,6 +37,7 @@ class ProductSchema(ma.SQLAlchemySchema):
     price = ma.auto_field(dump_only=True)
     referenced_product = ma.Nested(ReferencedProductSchema, dump_only=True, many=True)
     specifications = ma.auto_field(dump_only=True)
+    image_link = ma.String(dump_only=True)
 
     available = ma.Nested(ProductAvailabilitySchema, dump_only=True, many=True)
 
@@ -52,6 +54,7 @@ class ProductCreateSchema(ma.SQLAlchemySchema):
     parent_fk = ma.auto_field()
     category_fk = ma.auto_field(required=True)
     subcategory_fk = ma.auto_field()
+    image_fk = ma.auto_field(required=True)
     specifications = ma.auto_field()
     is_child = ma.auto_field(required=True)
 
