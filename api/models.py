@@ -42,6 +42,8 @@ class ObjectStorage(db.Model):
     link = Column(String(1024), index=True)
 
     product = relationship('Product', back_populates='image')
+    imagecarousel = relationship('ImageCarousel', back_populates='image')
+
 
 
 class User(Updatable, db.Model):
@@ -200,6 +202,8 @@ class Product(db.Model):
 
     specifications = Column(JSON, default=None)
 
+    created_at = Column(DateTime, default=datetime.utcnow)
+
     # referenced_product = relationship('Product', back_populates='referenced_product')
     referenced_product = relationship('Product')
     categories = relationship('Category', back_populates='products')
@@ -355,3 +359,17 @@ class RevokedTokens(db.Model):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user = relationship('User', back_populates='revokedtokens')
+
+
+class ImageCarousel(db.Model):
+    __tablename__ = 'ImageCarousel'
+
+    id = Column(Integer, primary_key=True)
+    image_id = Column(Integer, ForeignKey('ObjectStorage.id'), nullable=False)
+    active = Column(Boolean, default=False)
+
+    image = relationship('ObjectStorage', back_populates='imagecarousel')
+
+    @property
+    def image_link(self):
+        return 'https://storage.yandexcloud.net/vapehookahstatic/' + urllib.parse.quote(self.image.link)

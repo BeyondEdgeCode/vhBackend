@@ -6,6 +6,7 @@ from api.schemas.category import SearchByCategorySchema, SearchBySubCategorySche
 from apifairy import response, body, arguments
 from api.utils import permission_required
 from flask_jwt_extended import jwt_required
+from sqlalchemy import desc
 
 product_schema = ProductSchema(many=True)
 single_product_schema = ProductSchema()
@@ -44,6 +45,14 @@ def create(args):
 
     return product
 
+
+@response(product_schema)
+def get_last_created():
+    return db.session.scalars(
+        Product.select().order_by(
+            desc(Product.created_at)
+        )
+    )
 
 # @jwt_required()
 # @permission_required('admin.product.delete')
