@@ -54,6 +54,13 @@ def get_last_created():
         )
     )
 
+
+@response(single_product_schema)
+def get_one(product_id):
+    return db.session.scalar(
+        Product.select().where(Product.id == product_id)
+    )
+
 # @jwt_required()
 # @permission_required('admin.product.delete')
 # @body()
