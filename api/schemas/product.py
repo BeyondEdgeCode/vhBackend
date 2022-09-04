@@ -14,6 +14,15 @@ class ProductAvailabilitySchema(ma.SQLAlchemySchema):
     shop = ma.Nested(ShortShopSchema)
     amount = ma.auto_field()
 
+
+class ProductFKSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Product
+        include_fk = True
+
+    id = ma.auto_field()
+
+
 class ReferencedProductSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Product
@@ -38,6 +47,7 @@ class ProductSchema(ma.SQLAlchemySchema):
     referenced_product = ma.Nested(ReferencedProductSchema, dump_only=True, many=True)
     specifications = ma.auto_field(dump_only=True)
     image_link = ma.String(dump_only=True)
+    avg_stars = ma.Integer(dump_only=True)
 
     available = ma.Nested(ProductAvailabilitySchema, dump_only=True, many=True)
 

@@ -1,4 +1,3 @@
-from flask import request
 from api.models import Product, ProductAvailability, Shop
 from api import db
 from api.schemas.product import ProductSchema, ProductCreateSchema

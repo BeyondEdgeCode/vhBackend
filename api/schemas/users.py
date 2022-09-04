@@ -21,3 +21,11 @@ class UserSchema(ma.SQLAlchemySchema):
     zipcode = ma.auto_field()
     notificationsAgree = ma.auto_field()
     registrationDate = ma.auto_field()
+
+
+class UserReviewSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = User
+        include_fk = True
+
+    firstName = ma.auto_field(dump_only=True)

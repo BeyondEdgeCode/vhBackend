@@ -220,6 +220,17 @@ class Product(db.Model):
     def image_link(self):
         return 'https://storage.yandexcloud.net/vapehookahstatic/' + urllib.parse.quote(self.image.link)
 
+    @property
+    def avg_stars(self):
+        total = 0
+        for review in self.reviews:
+            total+=review.stars
+
+        try:
+            return total/len(self.reviews)
+        except ZeroDivisionError:
+            return 0
+
 class ProductAvailability(db.Model):
     __tablename__ = 'ProductAvailability'
 
@@ -321,8 +332,8 @@ class Reviews(db.Model):
     __tablename__ = 'Reviews'
 
     id = Column(Integer, primary_key=True)
-    product_fk = Column(Integer, ForeignKey('Product.id'), nullable=False)
-    user_fk = Column(Integer, ForeignKey('Users.id'), nullable=False)
+    product_id = Column(Integer, ForeignKey('Product.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('Users.id'), nullable=False)
     stars = Column(Integer, nullable=False)
     text = Column(String(1024))
 
