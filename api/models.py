@@ -200,8 +200,6 @@ class Product(db.Model):
     category_fk = Column(Integer, ForeignKey('Category.id'), nullable=False)
     subcategory_fk = Column(Integer, ForeignKey('SubCategory.id', ondelete='CASCADE'))
 
-    specifications = Column(JSON, default=None)
-
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # referenced_product = relationship('Product', back_populates='referenced_product')
@@ -215,6 +213,7 @@ class Product(db.Model):
     image = relationship('ObjectStorage', back_populates='product')
     inorders = relationship('OrderItem', back_populates='product')
     reviews = relationship('Reviews', back_populates='product')
+    specifications = relationship('ProductSpecification', back_populates='product')
 
     @property
     def image_link(self):
@@ -384,3 +383,16 @@ class ImageCarousel(db.Model):
     @property
     def image_link(self):
         return 'https://storage.yandexcloud.net/vapehookahstatic/' + urllib.parse.quote(self.image.link)
+
+
+class ProductSpecification(db.Model):
+    __tablename__ = 'ProductSpecification'
+
+    id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, ForeignKey('Product.id'), nullable=False)
+    key = Column(String(128), nullable=False, index=True)
+    value = Column(String(128), nullable=False)
+    type = Column(String(32), nullable=False)
+
+
+    product = relationship('Product', back_populates='specifications')

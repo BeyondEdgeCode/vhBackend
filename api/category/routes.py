@@ -8,6 +8,7 @@ from apifairy import response
 
 category_schema = CategorySchema(many=True)
 
+
 @jwt_required()
 @permission_required('admin.category.create')
 def create():

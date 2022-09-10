@@ -10,6 +10,7 @@ from .objectstorage import s3
 from .shop import shop
 from .imagecarousel import imagecarousel
 from .reviews import reviews
+from .filers import filters
 
 from flask_jwt_extended import get_jwt, create_access_token, get_jwt_identity, set_access_cookies
 from datetime import datetime, timedelta, timezone
@@ -26,6 +27,7 @@ router.register_blueprint(s3)
 router.register_blueprint(shop)
 router.register_blueprint(imagecarousel)
 router.register_blueprint(reviews)
+router.register_blueprint(filters)
 
 
 @auth.after_request

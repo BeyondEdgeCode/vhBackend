@@ -1,5 +1,5 @@
 from api.app import ma
-from api.models import Product, ProductAvailability
+from api.models import Product, ProductAvailability, ProductSpecification
 from .category import CategoryInfoSchema
 from .shop import ShortShopSchema
 from marshmallow import validate, validates, validates_schema, \
@@ -68,3 +68,30 @@ class ProductCreateSchema(ma.SQLAlchemySchema):
     specifications = ma.auto_field()
     is_child = ma.auto_field(required=True)
 
+
+
+class SpecificationSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ProductSpecification
+
+    id = ma.auto_field(dump_only=True)
+    product_id = ma.auto_field(required=True)
+    key = ma.auto_field(required=True)
+    value = ma.auto_field(required=True)
+    type = ma.auto_field(required=True)
+
+
+class GetSpecificationSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ProductSpecification
+
+    product_id = ma.auto_field(required=True)
+
+
+class ModSpecificationSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ProductSpecification
+
+    id = ma.auto_field(required=True)
+    key = ma.auto_field(required=True)
+    value = ma.auto_field(required=True)

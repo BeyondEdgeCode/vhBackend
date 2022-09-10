@@ -1,6 +1,9 @@
-from api.models import Product, ProductAvailability, Shop
+from flask import jsonify
+
+from api.models import Product, ProductAvailability, Shop, ProductSpecification
 from api import db
-from api.schemas.product import ProductSchema, ProductCreateSchema
+from api.schemas.product import ProductSchema, ProductCreateSchema, SpecificationSchema, GetSpecificationSchema
+from api.schemas.product import ModSpecificationSchema
 from api.schemas.category import SearchByCategorySchema, SearchBySubCategorySchema
 from apifairy import response, body, arguments
 from api.utils import permission_required
@@ -12,6 +15,9 @@ single_product_schema = ProductSchema()
 product_create = ProductCreateSchema()
 search_by_category = SearchByCategorySchema()
 search_by_subcategory = SearchBySubCategorySchema()
+specifications_schema = SpecificationSchema(many=True)
+get_specification_schema = GetSpecificationSchema()
+mod_specification_schema = ModSpecificationSchema(many=True)
 
 
 @arguments(search_by_category)
@@ -63,3 +69,46 @@ def get_one(product_id):
 # @jwt_required()
 # @permission_required('admin.product.delete')
 # @body()
+
+
+@jwt_required()
+@permission_required('admin.specifications.add')
+@body(specifications_schema)
+@response(specifications_schema)
+def add_specifications(args):
+    commit_list = []
+    for arg in args:
+        commit_list.append(ProductSpecification(**arg))
+
+    db.session.add_all(commit_list)
+    db.session.commit()
+
+    return commit_list
+
+
+@arguments(get_specification_schema)
+@response(specifications_schema)
+def get_specifications(args):
+    return db.session.scalars(
+        ProductSpecification.select().where(ProductSpecification.product_id == args['product_id'])
+    )
+
+
+@body(mod_specification_schema)
+@response(specifications_schema)
+def edit_specification(args):
+    commit_list = []
+    for arg in args:
+        if specification := db.session.get(ProductSpecification, arg['id']):
+            specification.key = arg['key']
+            specification.value = arg['value']
+            commit_list.append(specification)
+
+    db.session.add_all(commit_list)
+    db.session.commit()
+
+    return commit_list
+
+
+def delete_specification():
+    pass
