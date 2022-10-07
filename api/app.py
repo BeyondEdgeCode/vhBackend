@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from flask_jwt_extended import JWTManager
 from .config import Config
+from flask_cors import CORS
 
 db = Alchemical()
 migrate = Migrate()
@@ -24,8 +25,8 @@ def create_app(config_class=Config):
     ma.init_app(app)
     jwt.init_app(app)
     apifairy.init_app(app)
-    # if app.config['USE_CORS']:  # pragma: no branch
-    #     cors.init_app(app)
+    if app.config['USE_CORS']:
+        CORS(app)
 
     from .router import router
     app.register_blueprint(router)

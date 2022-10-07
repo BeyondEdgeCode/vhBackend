@@ -7,14 +7,15 @@ from apifairy import response, body, arguments
 from api.models import Product, ProductSpecification, Category
 from api.schemas.product import SpecificationSchema
 from api.schemas.category import SearchByCategorySchema
+from api.schemas.filters import FiltersSchema
 from sqlalchemy import and_
 
-specifications_schema = SpecificationSchema(many=True)
+filters_schema = FiltersSchema(many=True)
 get_by_category_schema = SearchByCategorySchema()
 
 
 @arguments(get_by_category_schema)
-# @response(specifications_schema)
+@response(filters_schema)
 def get_filters(args):
     unique_keys = db.session.scalars(
         ProductSpecification.select()
@@ -27,7 +28,6 @@ def get_filters(args):
     filters_list = []
 
     for unique_key in unique_keys:
-        current_app.logger.info(unique_key)
         unique_values = db.session.scalars(
             ProductSpecification.select()
             .join(Product)
@@ -47,4 +47,4 @@ def get_filters(args):
             }
         )
 
-    return jsonify(filters_list)
+    return filters_list
