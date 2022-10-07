@@ -12,6 +12,7 @@ migrate = Migrate()
 ma = Marshmallow()
 jwt = JWTManager()
 apifairy = APIFairy()
+cors = CORS()
 
 
 def create_app(config_class=Config):
@@ -26,7 +27,7 @@ def create_app(config_class=Config):
     jwt.init_app(app)
     apifairy.init_app(app)
     if app.config['USE_CORS']:
-        CORS.init_app(app)
+        cors.init_app(app)
 
     from .router import router
     app.register_blueprint(router)
