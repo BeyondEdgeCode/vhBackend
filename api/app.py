@@ -26,7 +26,7 @@ def create_app(config_class=Config):
     jwt.init_app(app)
     apifairy.init_app(app)
     if app.config['USE_CORS']:
-        CORS(app)
+        CORS.init_app(app)
 
     from .router import router
     app.register_blueprint(router)
