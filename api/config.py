@@ -14,6 +14,9 @@ def as_bool(value):
 
 
 class Config:
+    APP_VERSION = os.environ.get('APP_VERSION')
+    DEBUG_METRICS = os.environ.get('DEBUG_METRICS')
+
     # database options
     ALCHEMICAL_DATABASE_URL = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'db.sqlite')

@@ -32,6 +32,8 @@ def create_app(config_class=Config):
     if app.config['USE_CORS']:
         cors.init_app(app)
 
+    metrics.info('vh_backend', 'VapeHookah Backend', version=app.config['APP_VERSION'])
+
     from .router import router
     app.register_blueprint(router)
 
@@ -51,5 +53,6 @@ def create_app(config_class=Config):
         # Clear Werkzeug context
         request.get_data()
         return response
+
     return app
 
