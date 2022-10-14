@@ -7,6 +7,8 @@ from flask_jwt_extended import JWTManager
 from .config import Config
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 
 db = Alchemical()
 migrate = Migrate()
@@ -53,6 +55,7 @@ def create_app(config_class=Config):
         # Clear Werkzeug context
         request.get_data()
         return response
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
     return app
 
