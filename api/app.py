@@ -6,7 +6,6 @@ from flask_marshmallow import Marshmallow
 from flask_jwt_extended import JWTManager
 from .config import Config
 from flask_cors import CORS
-from prometheus_flask_exporter import PrometheusMetrics
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
@@ -16,7 +15,7 @@ ma = Marshmallow()
 jwt = JWTManager()
 apifairy = APIFairy()
 cors = CORS()
-metrics = PrometheusMetrics.for_app_factory()
+# metrics = PrometheusMetrics.for_app_factory()
 
 
 def create_app(config_class=Config):
@@ -30,11 +29,11 @@ def create_app(config_class=Config):
     ma.init_app(app)
     jwt.init_app(app)
     apifairy.init_app(app)
-    metrics.init_app(app)
+    # metrics.init_app(app)
     if app.config['USE_CORS']:
         cors.init_app(app)
 
-    metrics.info('vh_backend', 'VapeHookah Backend', version=app.config['APP_VERSION'])
+    # metrics.info('vh_backend', 'VapeHookah Backend', version=app.config['APP_VERSION'])
 
     from .router import router
     app.register_blueprint(router)
