@@ -4,9 +4,9 @@ FROM python:3.11
 
 WORKDIR /vhBackend
 
-ENV FLASK_APP = vapehookah
-ENV FLASK_ENV = development
-ENV FLASK_DEBUG = 1
+ENV FLASK_APP=vapehookah
+ENV FLASK_ENV=development
+ENV FLASK_DEBUG=1
 
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
