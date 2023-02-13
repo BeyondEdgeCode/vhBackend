@@ -13,9 +13,6 @@ services:
   backend:
     build: ./backend
     command:
-      - python -m flask db init
-      - python -m flask db upgrade
-      - python -m flask db migrate
       - python -m flask run --host=0.0.0.0 -p 8001
     ports:
       - "80:8001"
