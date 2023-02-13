@@ -11,7 +11,7 @@ services:
     ports:
       - "5432:5432"
   backend:
-    build: ./vhBackend/backend
+    build: ./backend
     command: python -m flask run --host=0.0.0.0 -p 8001
     ports:
       - "80:8001"
