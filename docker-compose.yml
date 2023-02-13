@@ -1,14 +1,21 @@
 version: "3"
 services:
-  backend:
-    build: /
-    ports:
-      - "80:8001"
   postgres:
     image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
     environment:
-      POSTGRES_DB: "db"
+      POSTGRES_DB: "backend"
       POSTGRES_USER: "evgeniy"
       POSTGRES_PASSWORD: "testpassword1234"
     ports:
       - "5432:5432"
+  backend:
+    build: ./vhBackend/backend
+    command: python -m flask run --host=0.0.0.0 -p 8001
+    ports:
+      - "80:8001"
+    depends_on:
+      - postgres
+volumes:
+  postgres_data:
