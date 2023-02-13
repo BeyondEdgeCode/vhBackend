@@ -12,6 +12,8 @@ services:
       - "5432:5432"
   backend:
     build: ./backend
+    volumes:
+      - backend_data:/usr/src/app/
     command: python -m flask run --host=0.0.0.0 -p 8001
     ports:
       - "80:8001"
@@ -19,3 +21,4 @@ services:
       - postgres
 volumes:
   postgres_data:
+  backend_data:
