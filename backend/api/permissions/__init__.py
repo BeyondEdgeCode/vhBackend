@@ -1,5 +1,6 @@
 from flask import Blueprint
 from .routes import add
+from .cli import cli_assign, cli_create_permission, cli_ls
 
 permissions = Blueprint('permissions', __name__)
 

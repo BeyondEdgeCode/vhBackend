@@ -1,6 +1,6 @@
 from flask import Blueprint
 from .routes import add, assign, get_all, add_permission, delete_permission
-
+from .cli import cli_create_role, cli_ls
 
 roles = Blueprint('roles', __name__)
 

@@ -45,7 +45,7 @@ class ObjectStorage(db.Model):
     imagecarousel = relationship('ImageCarousel', back_populates='image')
 
 
-class User(Updatable, db.Model):
+class User(db.Model):
     __tablename__ = 'Users'
 
     # Основная информация
@@ -153,6 +153,7 @@ class UserRolePermission(db.Model):
     role = relationship('UserRole', back_populates='permissions')
     permission = relationship('Permission', back_populates='roles')
 
+
 class Permission(db.Model):
     __tablename__ = 'Permission'
 
@@ -222,12 +223,13 @@ class Product(db.Model):
     def avg_stars(self):
         total = 0
         for review in self.reviews:
-            total+=review.stars
+            total += review.stars
 
         try:
             return total/len(self.reviews)
         except ZeroDivisionError:
             return 0
+
 
 class ProductAvailability(db.Model):
     __tablename__ = 'ProductAvailability'
@@ -358,6 +360,8 @@ class Promocode(db.Model):
     promotype = relationship('PromoType', back_populates='promocodes')
 
 #     TODO: Tokens, Акции, Скидочные карты
+
+
 class RevokedTokens(db.Model):
     __tablename__ = 'RevokedTokens'
 
@@ -392,6 +396,5 @@ class ProductSpecification(db.Model):
     key = Column(String(128), nullable=False, index=True)
     value = Column(String(128), nullable=False)
     type = Column(String(32), nullable=False)
-
 
     product = relationship('Product', back_populates='specifications')

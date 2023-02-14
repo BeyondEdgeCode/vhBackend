@@ -1,5 +1,5 @@
 from werkzeug.exceptions import BadRequest
-from flask import  jsonify, request
+from flask import jsonify, request
 from werkzeug.exceptions import Unauthorized
 from sqlalchemy.sql.expression import and_
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -14,16 +14,16 @@ jwt.unauthorized_loader(lambda auth: (jsonify({'error': 'Not authorized'}), 401)
 jwt.revoked_token_loader(lambda auth: (jsonify({'error': 'Token has been revoked'}), 403))
 jwt.invalid_token_loader(lambda auth: (jsonify({'error': 'Invalid token'}), 403))
 
+
 @jwt.user_identity_loader
 def user_identitty_loader(user):
     return user.id
+
 
 @jwt.user_lookup_loader
 def user_lookup_loader(_jwt_header, jwt_data):
     identity = jwt_data['sub']
     return db.session.scalar(User.select().where(User.id == identity))
-
-
 
 
 def login():
@@ -43,6 +43,7 @@ def login():
 
     return jsonify(access_token=create_access_token(identity=user), refresh_token=create_refresh_token(identity=user))
 
+
 def logout():
     token = get_jwt()
     jti = token['jti']
@@ -52,6 +53,7 @@ def logout():
     db.session.add(revoked_token)
     db.session.commit()
     return jsonify(msg=f"{ttype.capitalize()} token successfully revoked")
+
 
 def register():
     try:
@@ -71,6 +73,7 @@ def register():
     db.session.commit()
     db.session.refresh(user)
     return jsonify(user_id=user.id), 200
+
 
 @jwt_required()
 def me():
