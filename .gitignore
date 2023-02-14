@@ -1,3 +1,4 @@
 /venv/
 /migrations/
 /api/uploads/
+/backend/api/db.sqlite

@@ -21,9 +21,9 @@ cors = CORS()
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-
+    print(app.config.get('ALCHEMICAL_DATABASE_URL'))
     # extensions
-    from api import models
+    from . import models
     db.init_app(app)
     migrate.init_app(app, db)
     ma.init_app(app)
@@ -33,12 +33,8 @@ def create_app(config_class=Config):
     if app.config['USE_CORS']:
         cors.init_app(app)
 
-    # metrics.info('vh_backend', 'VapeHookah Backend', version=app.config['APP_VERSION'])
-
     from .router import router
     app.register_blueprint(router)
-
-    # define the shell context
     @app.shell_context_processor
     def shell_context():  # pragma: no cover
         ctx = {'db': db}
