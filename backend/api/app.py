@@ -9,6 +9,7 @@ from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
+
 db = Alchemical()
 migrate = Migrate()
 ma = Marshmallow()
@@ -18,10 +19,21 @@ cors = CORS()
 # metrics = PrometheusMetrics.for_app_factory()
 
 
+def register_cli(app: Flask):
+    from .permissions.cli import perm as perm_cli
+    app.cli.add_command(perm_cli, name='perm')
+    from .auth.cli import auth as auth_cli
+    app.cli.add_command(auth_cli, name='auth')
+    from .roles.cli import roles as roles_cli
+    app.cli.add_command(roles_cli, name='roles')
+    from .category.cli import category as category_cli
+    app.cli.add_command(category_cli, name='category')
+
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-    print(app.config.get('ALCHEMICAL_DATABASE_URL'))
+
     # extensions
     from . import models
     db.init_app(app)
@@ -29,14 +41,15 @@ def create_app(config_class=Config):
     ma.init_app(app)
     jwt.init_app(app)
     apifairy.init_app(app)
-    # metrics.init_app(app)
+    register_cli(app)
     if app.config['USE_CORS']:
         cors.init_app(app)
 
     from .router import router
     app.register_blueprint(router)
+
     @app.shell_context_processor
-    def shell_context():  # pragma: no cover
+    def shell_context():
         ctx = {'db': db}
         for attr in dir(models):
             model = getattr(models, attr)

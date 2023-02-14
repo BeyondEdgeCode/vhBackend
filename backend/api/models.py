@@ -45,7 +45,7 @@ class ObjectStorage(db.Model):
     imagecarousel = relationship('ImageCarousel', back_populates='image')
 
 
-class User(Updatable, db.Model):
+class User(db.Model):
     __tablename__ = 'Users'
 
     # Основная информация
