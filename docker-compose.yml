@@ -1,0 +1,26 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: "backend"
+      POSTGRES_USER: "evgeniy"
+      POSTGRES_PASSWORD: "testpassword1234"
+    ports:
+      - "5432:5432"
+  backend:
+    build: ./backend
+    volumes:
+      - backend_data:/usr/src/app/
+    command: python -m flask run --host=0.0.0.0 -p 8001
+    ports:
+      - "80:8001"
+    env_file:
+      - ./.env
+    depends_on:
+      - postgres
+volumes:
+  postgres_data:
+  backend_data:
