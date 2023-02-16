@@ -1,3 +1,4 @@
+from api.config import Config
 from api.models import User, Shop, Settings
 from api.utils import get_all, get_first
 from flask import jsonify
@@ -26,5 +27,5 @@ def zerodivision_test():
         е = 1/0
     except ZeroDivisionError as err:
         capture_exception(err)
-        return jsonify(status='Exception handled')
+        return jsonify(status=f'{Config.APP_VERSION}')
 
