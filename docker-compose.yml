@@ -1,5 +1,6 @@
 version: "3"
 services:
+
   postgres:
     image: postgres:latest
     volumes:
@@ -10,6 +11,7 @@ services:
       POSTGRES_PASSWORD: "testpassword1234"
     ports:
       - "5432:5432"
+
   backend:
     build: ./backend
     volumes:

@@ -1,3 +1,6 @@
+import sys
+
+import flask_jwt_extended
 from apifairy import APIFairy
 from flask import Flask, request
 from alchemical.flask import Alchemical
@@ -8,6 +11,8 @@ from .config import Config
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 
 db = Alchemical()
@@ -34,7 +39,7 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # extensions
+    # modules
     from . import models
     db.init_app(app)
     migrate.init_app(app, db)
@@ -42,6 +47,22 @@ def create_app(config_class=Config):
     jwt.init_app(app)
     apifairy.init_app(app)
     register_cli(app)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+    sentry_sdk.init(
+        dsn=Config.SENTRY_DSN,
+        integrations=[
+            FlaskIntegration(),
+        ],
+        _experiments={
+            "profiles_sample_rate": 1.0,
+        },
+        environment=Config.ENVIRONMENT,
+        attach_stacktrace=True,
+        send_default_pii=True,
+        traces_sample_rate=1.0,
+        release=Config.APP_VERSION[0:7] if Config.ENVIRONMENT == 'production' else f'dev:{Config.APP_VERSION[0:7]}',
+    )
+
     if app.config['USE_CORS']:
         cors.init_app(app)
 
@@ -63,7 +84,6 @@ def create_app(config_class=Config):
         # Clear Werkzeug context
         request.get_data()
         return response
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
     return app
 

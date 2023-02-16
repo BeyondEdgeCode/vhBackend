@@ -6,6 +6,9 @@ ENV FLASK_APP=vapehookah
 ENV FLASK_ENV=development
 ENV FLASK_DEBUG=1
 
-COPY ./requirements.txt /usr/src/app/requirements.txt
+COPY backend/requirements.txt /usr/src/app/requirements.txt
+RUN apk update
+RUN apk add git
 RUN pip3 install -r requirements.txt
-COPY . /usr/src/app
+COPY backend /usr/src/app
+COPY .git /usr/src/app/.git

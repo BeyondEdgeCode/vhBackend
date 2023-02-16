@@ -1,7 +1,7 @@
 import datetime
 import os
+import subprocess
 from dotenv import load_dotenv
-
 
 load_dotenv()
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -14,8 +14,10 @@ def as_bool(value):
 
 
 class Config:
-    APP_VERSION = os.environ.get('APP_VERSION')
+    ENVIRONMENT = os.environ.get('ENVIRONMENT') or 'dev'
+    APP_VERSION = str(subprocess.check_output("git rev-parse --verify HEAD")).replace("b'", '').replace("\\n'", '')
     DEBUG_METRICS = os.environ.get('DEBUG_METRICS')
+    SENTRY_DSN = os.environ.get('SENTRY_DSN')
 
     # database options
     ALCHEMICAL_DATABASE_URL = os.environ.get('DATABASE_URL') or \

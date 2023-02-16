@@ -3,6 +3,7 @@ from api.utils import get_all, get_first
 from flask import jsonify
 from flask_jwt_extended import jwt_required
 from api.utils import permission_required
+from sentry_sdk import capture_exception
 
 
 @jwt_required()
@@ -20,6 +21,10 @@ def get_users():
     return jsonify([[u.email, u.password] for u in users])
 
 
-def echo():
-    return jsonify(status='ok')
+def zerodivision_test():
+    try:
+        е = 1/0
+    except ZeroDivisionError as err:
+        capture_exception(err)
+        return jsonify(status='Exception handled')
 
