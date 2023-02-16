@@ -15,7 +15,10 @@ def as_bool(value):
 
 class Config:
     ENVIRONMENT = os.environ.get('ENVIRONMENT') or 'dev'
-    APP_VERSION = str(subprocess.check_output("git rev-parse --verify HEAD")).replace("b'", '').replace("\\n'", '')
+    try:
+        APP_VERSION = str(subprocess.check_output("git rev-parse --verify HEAD")).replace("b'", '').replace("\\n'", '')
+    except FileNotFoundError:
+        APP_VERSION = 'git not found'
     DEBUG_METRICS = os.environ.get('DEBUG_METRICS')
     SENTRY_DSN = os.environ.get('SENTRY_DSN')
 
