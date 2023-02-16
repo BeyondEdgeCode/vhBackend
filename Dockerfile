@@ -1,8 +1,8 @@
-FROM python:3.11.0-alpine
+FROM python:3.11.0-slim
 
 WORKDIR /usr/src/app
 
-RUN apk update && apk add git
+RUN apt update && apt install -y git
 COPY backend/requirements.txt /usr/src/app/requirements.txt
 RUN pip3 install -r requirements.txt
 COPY backend /usr/src/app
