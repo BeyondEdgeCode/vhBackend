@@ -22,10 +22,6 @@ def get_users():
     return jsonify([[u.email, u.password] for u in users])
 
 
-def zerodivision_test():
-    try:
-        е = 1/0
-    except ZeroDivisionError as err:
-        capture_exception(err)
-        return jsonify(status=f'{Config.APP_VERSION}')
+def version():
+    return jsonify(version=f'{Config.APP_VERSION}')
 
