@@ -25,6 +25,7 @@ def create():
 
     return jsonify(code=200, id=new_category.id), 200
 
+
 @jwt_required()
 @permission_required('admin.subcategory.create')
 def create_subcategory():

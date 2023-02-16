@@ -1,3 +1,5 @@
+from typing import List
+
 from flask import jsonify
 
 from api.models import Product, ProductAvailability, Shop, ProductSpecification
@@ -76,7 +78,7 @@ def get_one(product_id):
 @body(specifications_schema)
 @response(specifications_schema)
 def add_specifications(args):
-    commit_list = []
+    commit_list: List[ProductSpecification] = []
     for arg in args:
         commit_list.append(ProductSpecification(**arg))
 

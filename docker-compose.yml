@@ -1,5 +1,6 @@
 version: "3"
 services:
+
   postgres:
     image: postgres:latest
     volumes:
@@ -10,8 +11,9 @@ services:
       POSTGRES_PASSWORD: "testpassword1234"
     ports:
       - "5432:5432"
+
   backend:
-    build: ./backend
+    build: ./
     volumes:
       - backend_data:/usr/src/app/migrations
     command: python -m flask run --host=0.0.0.0 -p 5000
