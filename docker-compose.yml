@@ -16,7 +16,7 @@ services:
     build: ./
     volumes:
       - backend_data:/usr/src/app/migrations
-    command: python -m flask run --host=0.0.0.0 -p 5000
+    command: gunicorn --bind 0.0.0.0:5000 --workers 4 vapehookah:app
     ports:
       - "80:5000"
     env_file:
