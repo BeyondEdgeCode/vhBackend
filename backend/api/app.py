@@ -2,7 +2,7 @@ import sys
 
 import flask_jwt_extended
 from apifairy import APIFairy
-from flask import Flask, request
+from flask import Flask, request, g
 from alchemical.flask import Alchemical
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
@@ -26,13 +26,22 @@ cors = CORS()
 
 def register_cli(app: Flask):
     from .permissions.cli import perm as perm_cli
-    app.cli.add_command(perm_cli, name='perm')
     from .auth.cli import auth as auth_cli
-    app.cli.add_command(auth_cli, name='auth')
     from .roles.cli import roles as roles_cli
-    app.cli.add_command(roles_cli, name='roles')
     from .category.cli import category as category_cli
+    from .objectstorage.cli import s3 as objectstorage_cli
+    from .product.cli import product as product_cli
+    from .shop.cli import shop as shop_cli
+    from .imagecarousel.cli import ic as ic_cli
+
+    app.cli.add_command(perm_cli, name='perm')
+    app.cli.add_command(auth_cli, name='auth')
+    app.cli.add_command(roles_cli, name='roles')
     app.cli.add_command(category_cli, name='category')
+    app.cli.add_command(objectstorage_cli, name='s3')
+    app.cli.add_command(product_cli, 'product')
+    app.cli.add_command(shop_cli, 'shop')
+    app.cli.add_command(ic_cli, 'ic')
 
 
 def create_app(config_class=Config):

@@ -1,6 +1,11 @@
 import os
+import random
+import string
+
 import boto3
 from flask import current_app, jsonify, request
+
+from api.config import Config
 from api.utils import permission_required
 from flask_jwt_extended import jwt_required
 from api.models import ObjectStorage
@@ -23,15 +28,13 @@ def get_extension(filename):
 
 
 def create_s3_session():
-    session = boto3.session.Session()
-    s3 = session.client(
+    return boto3.session.Session().client(
         service_name='s3',
         endpoint_url='https://storage.yandexcloud.net',
-        aws_access_key_id=current_app.config['AWS_ACCESS_KEY_ID'],
-        aws_secret_access_key=current_app.config['AWS_SECRET_ACCESS_KEY'],
-        region_name=current_app.config['AWS_REGION']
+        aws_access_key_id=Config.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=Config.AWS_SECRET_ACCESS_KEY,
+        region_name=Config.AWS_REGION
     )
-    return s3
 
 
 @jwt_required()
@@ -58,7 +61,7 @@ def upload():
     file = request.files['image']
     if file and allowed_file(file.filename):
         file_extension = get_extension(file.filename)
-        filename = (str(hash(file.filename)) + '.' + file_extension).replace('-', '')
+        filename = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(12)) + file_extension
         saved_filename = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
 
         file.save(saved_filename)

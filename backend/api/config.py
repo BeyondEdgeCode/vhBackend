@@ -16,7 +16,9 @@ def as_bool(value):
 class Config:
     ENVIRONMENT = os.environ.get('ENVIRONMENT') or 'dev'
     try:
-        APP_VERSION = str(subprocess.check_output("git rev-parse --verify HEAD", shell=True)).replace("b'", '').replace("\\n'", '')
+        APP_VERSION = str(subprocess.check_output("git rev-parse --verify HEAD", shell=True))\
+            .replace("b'", '')\
+            .replace("\\n'", '')
     except FileNotFoundError:
         APP_VERSION = 'git not found'
     DEBUG_METRICS = os.environ.get('DEBUG_METRICS')
@@ -37,7 +39,7 @@ class Config:
 
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    AWS_REGION = 'ru-central1'
+    AWS_REGION = 'us-east-1'
 
     APIFAIRY_TITLE = 'VapeHookah API'
     APIFAIRY_VERSION = '1.0'
