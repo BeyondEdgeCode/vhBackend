@@ -1,7 +1,10 @@
+from typing import List
+
 import click
 from flask.cli import with_appcontext
 from ..models import ImageCarousel, ObjectStorage
 from api.app import db
+from prettytable import PrettyTable
 
 
 @click.group()
@@ -19,3 +22,13 @@ def create(image_fk: int, active: int):
     db.session.commit()
 
     print(f'New id {new_ic.id}')
+
+
+@ic.command('ls')
+def ls():
+    all_ic: List[ImageCarousel] = db.session.scalars(ImageCarousel.select())
+    table = PrettyTable(['id', 'image_id', 'active'])
+    for item in all_ic:
+        table.add_row([item.id, item.image_id, int(item.active)])
+
+    print(table)

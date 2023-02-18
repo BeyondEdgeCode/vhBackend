@@ -37,6 +37,6 @@ def update(args):
 @response(icmany)
 def get_active():
     images = db.session.scalars(
-        ImageCarousel.select().where(ImageCarousel.active is True)
+        ImageCarousel.select().where(ImageCarousel.active == True)
     )
     return images
