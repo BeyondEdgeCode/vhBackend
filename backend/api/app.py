@@ -1,8 +1,5 @@
-import sys
-
-import flask_jwt_extended
 from apifairy import APIFairy
-from flask import Flask, request, g
+from flask import Flask, request
 from alchemical.flask import Alchemical
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
@@ -25,10 +22,10 @@ cors = CORS()
 
 
 def register_cli(app: Flask):
-    from .permissions.cli import perm as perm_cli
-    from .auth.cli import auth as auth_cli
-    from .roles.cli import roles as roles_cli
-    from .category.cli import category as category_cli
+    from api.user.permissions import perm as perm_cli
+    from .user.auth.cli import auth as auth_cli
+    from .user.roles.cli import roles as roles_cli
+    from api.product.category import category as category_cli
     from .objectstorage.cli import s3 as objectstorage_cli
     from .product.cli import product as product_cli
     from .shop.cli import shop as shop_cli
@@ -55,7 +52,7 @@ def create_app(config_class=Config):
     ma.init_app(app)
     jwt.init_app(app)
     apifairy.init_app(app)
-    register_cli(app)
+    # register_cli(app)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
     sentry_sdk.init(
         dsn=Config.SENTRY_DSN,

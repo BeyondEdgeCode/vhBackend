@@ -264,8 +264,8 @@ class Favourite(db.Model):
     __tablename__ = 'Favourite'
 
     id = Column(Integer, primary_key=True)
-    user_fk = Column(Integer, ForeignKey('Users.id'))
-    product_fk = Column(Integer, ForeignKey('Product.id'), index=True)
+    user_fk = Column(Integer, ForeignKey('Users.id'), index=True)
+    product_fk = Column(Integer, ForeignKey('Product.id'))
 
     user = relationship('User', back_populates='likes')
     product = relationship('Product', back_populates='liked')

@@ -2,7 +2,7 @@ from typing import List
 
 import click
 from flask.cli import with_appcontext
-from ..models import User, UserRole
+from api.models import User, UserRole
 from api.app import db
 from werkzeug.security import generate_password_hash
 

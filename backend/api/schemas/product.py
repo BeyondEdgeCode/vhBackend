@@ -69,7 +69,6 @@ class ProductCreateSchema(ma.SQLAlchemySchema):
     is_child = ma.auto_field(required=True)
 
 
-
 class SpecificationSchema(ma.SQLAlchemySchema):
     class Meta:
         model = ProductSpecification

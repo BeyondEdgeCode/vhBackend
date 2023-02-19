@@ -1,6 +1,6 @@
 import click
 from flask.cli import with_appcontext
-from ..models import UserRole, Permission, UserRolePermission
+from api.models import UserRole, Permission, UserRolePermission
 from api.app import db
 
 

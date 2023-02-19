@@ -9,6 +9,8 @@ from api.models import User, RevokedTokens, UserRole
 from api.app import db
 from datetime import datetime, timezone
 from api.app import jwt
+from apifairy import body, response
+from api.schemas.auth import LoginSchema, LoginResponseSchema, RegisterSchema
 
 jwt.unauthorized_loader(lambda auth: (jsonify({'error': 'Not authorized'}), 401))
 jwt.revoked_token_loader(lambda auth: (jsonify({'error': 'Token has been revoked'}), 403))
@@ -26,49 +28,41 @@ def user_lookup_loader(_jwt_header, jwt_data):
     return db.session.scalar(User.select().where(User.id == identity))
 
 
-def login():
-    try:
-        email = request.json['email']
-        password = request.json['password']
-        remember_me = request.json['remember']
-    except KeyError:
-        return BadRequest()
-
-    user: User = get_first_or_false(User.select().where(User.email == email))
-    if not user or not user.check_password(password):
-            return jsonify(error='Wrong login or password'), 401
+# @response()
+@body(LoginSchema)
+@response(LoginResponseSchema)
+def login(cred):
+    user: User = get_first_or_false(User.select().where(User.email == cred['email']))
+    if not user or not user.check_password(cred['password']):
+        return jsonify(error='Wrong login or password'), 401
 
     if not user.email_confirmed:
         return jsonify(internal_code=1002, error='Email is not confirmed')
 
-    return jsonify(access_token=create_access_token(identity=user), refresh_token=create_refresh_token(identity=user))
+    return {'access_token': create_access_token(identity=user), 'refresh_token': create_refresh_token(identity=user)}
 
 
+@jwt_required()
 def logout():
     token = get_jwt()
     jti = token['jti']
     ttype = token['type']
     now = datetime.now(timezone.utc)
-    revoked_token = RevokedTokens(jti=jti, type=ttype)
+    revoked_token = RevokedTokens(jti=jti, type=ttype, created_at=now)
     db.session.add(revoked_token)
     db.session.commit()
     return jsonify(msg=f"{ttype.capitalize()} token successfully revoked")
 
 
-def register():
-    try:
-        email = request.json['email']
-        password = request.json['password']
-        birthday = request.json['birthday']
-    except KeyError:
-        return BadRequest()
-
-    # Check email unique constraint
-    if get_first_or_false(User.select().where(User.email == email)):
+@body(RegisterSchema)
+def register(user_info):
+    # TODO: Add birthday check
+    if get_first_or_false(User.select().where(User.email == user_info['email'])):
         return jsonify(internal_code=1003, error='Email is used'), 400
 
     default_role = get_first(UserRole.select().where(UserRole.is_default == True))
-    user = User(email=email, password=generate_password_hash(password), birthday=birthday, role=default_role)
+    user = User(email=user_info['email'], password=generate_password_hash(user_info['password']),
+                birthday=user_info['birthday'], role=default_role)
     db.session.add(user)
     db.session.commit()
     db.session.refresh(user)

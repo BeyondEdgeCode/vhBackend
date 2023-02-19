@@ -2,7 +2,7 @@ from typing import List
 
 import click
 from flask.cli import with_appcontext
-from ..models import UserRole
+from api.models import UserRole
 from api.app import db
 
 

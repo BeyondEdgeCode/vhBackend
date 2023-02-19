@@ -2,7 +2,7 @@ from typing import List
 from typing import Union
 import click
 from flask.cli import with_appcontext
-from ..models import Category, SubCategory
+from api.models import Category, SubCategory
 from api.app import db
 
 
