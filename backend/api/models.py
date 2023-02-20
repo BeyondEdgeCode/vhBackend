@@ -235,8 +235,8 @@ class ProductAvailability(db.Model):
     __tablename__ = 'ProductAvailability'
 
     id = Column(Integer, primary_key=True)
-    product_id = Column(Integer, ForeignKey('Product.id'))
-    shop_id = Column(Integer, ForeignKey('Shop.id'))
+    product_id = Column(Integer, ForeignKey('Product.id'), nullable=False)
+    shop_id = Column(Integer, ForeignKey('Shop.id'), nullable=False)
     amount = Column(Integer, nullable=False, default=0)
 
     product = relationship('Product', back_populates='available')

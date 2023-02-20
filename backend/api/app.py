@@ -7,7 +7,7 @@ from flask_jwt_extended import JWTManager
 from .config import Config
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
-
+import flask_monitoringdashboard as dashboard
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 
@@ -22,10 +22,10 @@ cors = CORS()
 
 
 def register_cli(app: Flask):
-    from api.user.permissions import perm as perm_cli
+    from .user.permissions.cli import perm as perm_cli
     from .user.auth.cli import auth as auth_cli
     from .user.roles.cli import roles as roles_cli
-    from api.product.category import category as category_cli
+    from .product.category.cli import category as category_cli
     from .objectstorage.cli import s3 as objectstorage_cli
     from .product.cli import product as product_cli
     from .shop.cli import shop as shop_cli
@@ -36,9 +36,9 @@ def register_cli(app: Flask):
     app.cli.add_command(roles_cli, name='roles')
     app.cli.add_command(category_cli, name='category')
     app.cli.add_command(objectstorage_cli, name='s3')
-    app.cli.add_command(product_cli, 'product')
-    app.cli.add_command(shop_cli, 'shop')
-    app.cli.add_command(ic_cli, 'ic')
+    app.cli.add_command(product_cli, name='product')
+    app.cli.add_command(shop_cli, name='shop')
+    app.cli.add_command(ic_cli, name='ic')
 
 
 def create_app(config_class=Config):
@@ -52,7 +52,7 @@ def create_app(config_class=Config):
     ma.init_app(app)
     jwt.init_app(app)
     apifairy.init_app(app)
-    # register_cli(app)
+    register_cli(app)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
     sentry_sdk.init(
         dsn=Config.SENTRY_DSN,
@@ -74,6 +74,11 @@ def create_app(config_class=Config):
 
     from .router import router
     app.register_blueprint(router)
+    dashboard.config.link = '/monitor'
+    dashboard.bind(app)
+    dashboard.config.show_login_banner = 0
+    dashboard.config.show_login_footer = 0
+    dashboard.config.brand_name = 'VapeHookah'
 
     @app.shell_context_processor
     def shell_context():

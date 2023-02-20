@@ -5,6 +5,7 @@ from .reviews import reviews
 from .filters import filters
 from .category import category
 from .favourite import favourite
+from .availability import availability
 
 product = Blueprint('product', __name__)
 
@@ -21,3 +22,4 @@ product.register_blueprint(reviews)
 product.register_blueprint(filters)
 product.register_blueprint(category)
 product.register_blueprint(favourite)
+product.register_blueprint(availability)

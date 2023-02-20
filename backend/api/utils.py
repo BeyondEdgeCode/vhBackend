@@ -1,9 +1,19 @@
 from functools import wraps
-
 from .app import db
 from flask import request, jsonify, logging, current_app
 from flask_jwt_extended import current_user
-# from flask_jwt_extended import
+
+
+class ResponsesClass:
+
+    def throw_400(self, err):
+        return jsonify(status=400, msg=err), 400
+
+    def throw_200(self, msg):
+        return jsonify(status=200, msg=msg), 200
+
+
+responses = ResponsesClass()
 
 
 def get_first(query):
@@ -25,12 +35,8 @@ def permission_required(permission):
         def decorator(*args, **kwargs):
             permissions = current_user.role.get_rights()
             if 'admin.all' in permissions or permission in permissions:
-                current_app.logger.info(f'{current_user.role.roleName}->{current_user.email} requested access to '
-                                        f'{request.path} -> ACCESS GRANTED')
                 return fn(*args, **kwargs)
             else:
-                current_app.logger.info(f'{current_user.role.roleName}->{current_user.email} requested access to '
-                                        f'{request.path} -> ACCESS DENIED')
                 return jsonify(msg=f'Role <{permission}> not found in role <{current_user.role.roleName}>'), 403
 
         return decorator

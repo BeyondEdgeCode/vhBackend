@@ -5,6 +5,7 @@ from .shop import ShortShopSchema
 from marshmallow import validate, validates, validates_schema, \
     ValidationError, post_dump
 
+
 class ProductAvailabilitySchema(ma.SQLAlchemySchema):
     class Meta:
         model = ProductAvailability
