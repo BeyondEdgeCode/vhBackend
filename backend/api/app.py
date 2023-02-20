@@ -66,7 +66,8 @@ def create_app(config_class=Config):
         attach_stacktrace=True,
         send_default_pii=True,
         traces_sample_rate=1.0,
-        release=Config.APP_VERSION[0:7] if Config.ENVIRONMENT == 'production' else f'dev:{Config.APP_VERSION[0:7]}',
+        release=f'{Config.APP_VERSION}-{Config.GIT_VERSION[0:5]}' if Config.ENVIRONMENT == 'production'
+        else f'dev:{Config.APP_VERSION}-{Config.GIT_VERSION[0:5]}',
     )
 
     if app.config['USE_CORS']:
