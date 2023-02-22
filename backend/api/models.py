@@ -213,7 +213,7 @@ class Product(db.Model):
     image = relationship('ObjectStorage', back_populates='product')
     inorders = relationship('OrderItem', back_populates='product')
     reviews = relationship('Reviews', back_populates='product')
-    specifications = relationship('ProductSpecification', back_populates='product')
+    specifications = relationship('SpecificationToProduct', back_populates='product')
 
     @property
     def image_link(self):
@@ -392,9 +392,20 @@ class ProductSpecification(db.Model):
     __tablename__ = 'ProductSpecification'
 
     id = Column(Integer, primary_key=True)
-    product_id = Column(Integer, ForeignKey('Product.id'), nullable=False)
     key = Column(String(128), nullable=False, index=True)
     value = Column(String(128), nullable=False)
     type = Column(String(32), nullable=False)
+    is_filter = Column(Boolean, default=False)
 
+    to_product = relationship('SpecificationToProduct', back_populates='specification')
+
+
+class SpecificationToProduct(db.Model):
+    __tablename__ = 'SpecificationToProduct'
+
+    id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, ForeignKey('Product.id'), nullable=False)
+    specification_id = Column(Integer, ForeignKey('ProductSpecification.id'), nullable=False)
+
+    specification = relationship('ProductSpecification', back_populates='to_product')
     product = relationship('Product', back_populates='specifications')

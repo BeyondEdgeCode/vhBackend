@@ -1,5 +1,5 @@
 from api.app import ma
-from api.models import Product, ProductAvailability, ProductSpecification
+from api.models import Product, ProductAvailability, ProductSpecification, SpecificationToProduct
 from .category import CategoryInfoSchema
 from .shop import ShortShopSchema
 from marshmallow import validate, validates, validates_schema, \
@@ -75,15 +75,22 @@ class SpecificationSchema(ma.SQLAlchemySchema):
         model = ProductSpecification
 
     id = ma.auto_field(dump_only=True)
-    product_id = ma.auto_field(required=True)
     key = ma.auto_field(required=True)
     value = ma.auto_field(required=True)
     type = ma.auto_field(required=True)
 
 
+class AssignSpecificationSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = SpecificationToProduct
+
+    product_id = ma.auto_field(required=True)
+    specification_id = ma.auto_field(required=True)
+
+
 class GetSpecificationSchema(ma.SQLAlchemySchema):
     class Meta:
-        model = ProductSpecification
+        model = SpecificationToProduct
 
     product_id = ma.auto_field(required=True)
 

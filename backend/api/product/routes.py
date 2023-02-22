@@ -2,15 +2,17 @@ from typing import List
 
 from flask import jsonify
 
-from api.models import Product, ProductAvailability, Shop, ProductSpecification
+from api.models import Product, ProductAvailability, Shop, ProductSpecification, SpecificationToProduct
 from api import db
 from api.schemas.product import ProductSchema, ProductCreateSchema, SpecificationSchema, GetSpecificationSchema
+from api.schemas.product import AssignSpecificationSchema
 from api.schemas.product import ModSpecificationSchema
 from api.schemas.category import SearchByCategorySchema, SearchBySubCategorySchema
 from apifairy import response, body, arguments
 from api.utils import permission_required
 from flask_jwt_extended import jwt_required
 from sqlalchemy import desc
+from api.utils import responses
 
 product_schema = ProductSchema(many=True)
 single_product_schema = ProductSchema()
@@ -88,11 +90,21 @@ def add_specifications(args):
     return commit_list
 
 
+@jwt_required()
+@permission_required('admin.specifications.assign')
+@body(AssignSpecificationSchema)
+def assign_specification(data):
+    spec = SpecificationToProduct(**data)
+    db.session.add(spec)
+    db.session.commit()
+    return responses.throw_200(msg='Added')
+
+
 @arguments(get_specification_schema)
 @response(specifications_schema)
 def get_specifications(args):
     return db.session.scalars(
-        ProductSpecification.select().where(ProductSpecification.product_id == args['product_id'])
+        ProductSpecification.select().where(ProductSpecification.to_product.id == args['product_id'])
     )
 
 
