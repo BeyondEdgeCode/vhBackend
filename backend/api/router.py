@@ -29,14 +29,14 @@ def add_time_measure():
     g.start = time.time()
 
 
-@router.after_request
-def inject_response_time(response: flask.Response):
-    data = response.get_json()
-    if type(data) is dict:
-        response_time = time.time() - g.start
-        data['execution_time'] = response_time
-        response.data = json.dumps(data)
-    return response
+# @router.after_request
+# def inject_response_time(response: flask.Response):
+#     data = response.get_json()
+#     if type(data) is dict:
+#         response_time = time.time() - g.start
+#         data['execution_time'] = response_time
+#         response.data = json.dumps(data)
+#     return response
 
 
 @router.after_request

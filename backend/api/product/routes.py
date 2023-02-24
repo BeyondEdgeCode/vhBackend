@@ -1,12 +1,9 @@
 from typing import List
-
 from flask import jsonify
-
-from api.models import Product, ProductAvailability, Shop, ProductSpecification, SpecificationToProduct
+from api.models import Product, ProductAvailability, Shop, SpecificationValue, Specification,\
+    SpecificationToProduct
 from api import db
-from api.schemas.product import ProductSchema, ProductCreateSchema, SpecificationSchema, GetSpecificationSchema
-from api.schemas.product import AssignSpecificationSchema
-from api.schemas.product import ModSpecificationSchema
+from .schema import ProductSchema, ProductCreateSchema
 from api.schemas.category import SearchByCategorySchema, SearchBySubCategorySchema
 from apifairy import response, body, arguments
 from api.utils import permission_required
@@ -14,25 +11,16 @@ from flask_jwt_extended import jwt_required
 from sqlalchemy import desc
 from api.utils import responses
 
-product_schema = ProductSchema(many=True)
-single_product_schema = ProductSchema()
-product_create = ProductCreateSchema()
-search_by_category = SearchByCategorySchema()
-search_by_subcategory = SearchBySubCategorySchema()
-specifications_schema = SpecificationSchema(many=True)
-get_specification_schema = GetSpecificationSchema()
-mod_specification_schema = ModSpecificationSchema(many=True)
 
-
-@arguments(search_by_category)
-@response(product_schema)
+@arguments(SearchByCategorySchema)
+@response(ProductSchema(many=True))
 def get_by_category(args):
     products = db.session.scalars(Product.select().where(Product.category_fk == args['id']))
     return products
 
 
-@arguments(search_by_subcategory)
-@response(product_schema)
+@arguments(SearchBySubCategorySchema)
+@response(ProductSchema(many=True))
 def get_by_subcategory(args):
     products = db.session.scalars(Product.select().where(Product.subcategory_fk == args['id']))
     return products
@@ -40,8 +28,8 @@ def get_by_subcategory(args):
 
 @jwt_required()
 @permission_required('admin.product.create')
-@body(product_create)
-@response(single_product_schema)
+@body(ProductCreateSchema)
+@response(ProductSchema)
 def create(args):
     product = Product(**args)
     db.session.add(product)
@@ -55,7 +43,7 @@ def create(args):
     return product
 
 
-@response(product_schema)
+@response(ProductSchema(many=True))
 def get_last_created():
     return db.session.scalars(
         Product.select().order_by(
@@ -64,7 +52,7 @@ def get_last_created():
     )
 
 
-@response(single_product_schema)
+@response(ProductSchema)
 def get_one(product_id):
     return db.session.scalar(
         Product.select().where(Product.id == product_id)
@@ -74,54 +62,53 @@ def get_one(product_id):
 # @permission_required('admin.product.delete')
 # @body()
 
-
-@jwt_required()
-@permission_required('admin.specifications.add')
-@body(specifications_schema)
-@response(specifications_schema)
-def add_specifications(args):
-    commit_list: List[ProductSpecification] = []
-    for arg in args:
-        commit_list.append(ProductSpecification(**arg))
-
-    db.session.add_all(commit_list)
-    db.session.commit()
-
-    return commit_list
-
-
-@jwt_required()
-@permission_required('admin.specifications.assign')
-@body(AssignSpecificationSchema)
-def assign_specification(data):
-    spec = SpecificationToProduct(**data)
-    db.session.add(spec)
-    db.session.commit()
-    return responses.throw_200(msg='Added')
+# @jwt_required()
+# @permission_required('admin.specifications.add')
+# @body(specifications_schema)
+# @response(specifications_schema)
+# def add_specifications(args):
+#     commit_list: List[ProductSpecification] = []
+#     for arg in args:
+#         commit_list.append(ProductSpecification(**arg))
+#
+#     db.session.add_all(commit_list)
+#     db.session.commit()
+#
+#     return commit_list
 
 
-@arguments(get_specification_schema)
-@response(specifications_schema)
-def get_specifications(args):
-    return db.session.scalars(
-        ProductSpecification.select().where(ProductSpecification.to_product.id == args['product_id'])
-    )
+# @jwt_required()
+# @permission_required('admin.specifications.assign')
+# @body(AssignSpecificationSchema)
+# def assign_specification(data):
+#     spec = SpecificationToProduct(**data)
+#     db.session.add(spec)
+#     db.session.commit()
+#     return responses.throw_200(msg='Added')
 
 
-@body(mod_specification_schema)
-@response(specifications_schema)
-def edit_specification(args):
-    commit_list = []
-    for arg in args:
-        if specification := db.session.get(ProductSpecification, arg['id']):
-            specification.key = arg['key']
-            specification.value = arg['value']
-            commit_list.append(specification)
+# @arguments(get_specification_schema)
+# @response(specifications_schema)
+# def get_specifications(args):
+#     return db.session.scalars(
+#         ProductSpecification.select().where(ProductSpecification.to_product.id == args['product_id'])
+#     )
 
-    db.session.add_all(commit_list)
-    db.session.commit()
-
-    return commit_list
+#
+# @body(mod_specification_schema)
+# @response(specifications_schema)
+# def edit_specification(args):
+#     commit_list = []
+#     for arg in args:
+#         if specification := db.session.get(ProductSpecification, arg['id']):
+#             specification.key = arg['key']
+#             specification.value = arg['value']
+#             commit_list.append(specification)
+#
+#     db.session.add_all(commit_list)
+#     db.session.commit()
+#
+#     return commit_list
 
 
 def delete_specification():

@@ -1,6 +1,6 @@
 from api.app import ma
 from api.models import Reviews
-from api.schemas.product import ProductFKSchema
+from api.product.schema import ProductFKSchema
 from marshmallow import validate
 from api.schemas.users import UserReviewSchema
 

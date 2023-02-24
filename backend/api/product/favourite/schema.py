@@ -1,6 +1,6 @@
 from api import ma
 from api.models import Favourite
-from api.schemas.product import ProductSchema
+from api.product.schema import ProductSchema
 
 
 class GetSchema(ma.SQLAlchemySchema):

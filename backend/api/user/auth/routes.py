@@ -9,7 +9,7 @@ from api.models import User, RevokedTokens, UserRole
 from api.app import db
 from datetime import datetime, timezone
 from api.app import jwt
-from apifairy import body, response
+from apifairy import body, response, other_responses
 from api.schemas.auth import LoginSchema, LoginResponseSchema, RegisterSchema
 
 jwt.unauthorized_loader(lambda auth: (jsonify({'error': 'Not authorized'}), 401))
@@ -28,16 +28,18 @@ def user_lookup_loader(_jwt_header, jwt_data):
     return db.session.scalar(User.select().where(User.id == identity))
 
 
-# @response()
+# @response(LoginResponseSchema)
 @body(LoginSchema)
-@response(LoginResponseSchema)
+@other_responses({401: 'Wrong login or password', 403: 'Email is not confirmed'})
 def login(cred):
     user: User = get_first_or_false(User.select().where(User.email == cred['email']))
-    if not user or not user.check_password(cred['password']):
+    if not user:
+        return jsonify(error='Wrong login or password'), 401
+    if not user.check_password(cred['password']):
         return jsonify(error='Wrong login or password'), 401
 
     if not user.email_confirmed:
-        return jsonify(internal_code=1002, error='Email is not confirmed')
+        return jsonify(error='Email is not confirmed'), 403
 
     return {'access_token': create_access_token(identity=user), 'refresh_token': create_refresh_token(identity=user)}
 

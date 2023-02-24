@@ -30,6 +30,7 @@ def register_cli(app: Flask):
     from .product.cli import product as product_cli
     from .shop.cli import shop as shop_cli
     from .imagecarousel.cli import ic as ic_cli
+    from .fill_db import fill
 
     app.cli.add_command(perm_cli, name='perm')
     app.cli.add_command(auth_cli, name='auth')
@@ -39,10 +40,12 @@ def register_cli(app: Flask):
     app.cli.add_command(product_cli, name='product')
     app.cli.add_command(shop_cli, name='shop')
     app.cli.add_command(ic_cli, name='ic')
+    app.cli.add_command(fill, name='fill')
 
 
 def create_app(config_class=Config):
     app = Flask(__name__)
+    app.config['JSON_SORT_KEYS'] = False
     app.config.from_object(config_class)
 
     # modules

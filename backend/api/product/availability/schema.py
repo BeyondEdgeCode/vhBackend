@@ -1,7 +1,7 @@
 from api import ma
 from marshmallow import validate
 from api.models import ProductAvailability
-from api.schemas.product import ProductSchema
+from api.product.schema import ProductSchema
 from api.schemas.shop import ShortShopSchema
 
 

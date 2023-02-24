@@ -52,8 +52,8 @@ class User(db.Model):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(120), index=True, unique=True, nullable=False)
     email_confirmed = Column(Boolean, default=False)
-    password = Column(String(128))
-    role_fk = Column(Integer, ForeignKey('UserRole.id'))
+    password = Column(String(128), nullable=False)
+    role_fk = Column(Integer, ForeignKey('UserRole.id'), nullable=False)
 
     # Личная информация
     firstName = Column(String(64), index=True)
@@ -388,24 +388,42 @@ class ImageCarousel(db.Model):
         return 'https://storage.yandexcloud.net/vapehookahstatic/' + urllib.parse.quote(self.image.link)
 
 
-class ProductSpecification(db.Model):
-    __tablename__ = 'ProductSpecification'
+class Specification(db.Model):
+    __tablename__ = 'Specification'
 
     id = Column(Integer, primary_key=True)
     key = Column(String(128), nullable=False, index=True)
-    value = Column(String(128), nullable=False)
     type = Column(String(32), nullable=False)
     is_filter = Column(Boolean, default=False)
+    values = relationship('SpecificationValue', back_populates='specification')
 
-    to_product = relationship('SpecificationToProduct', back_populates='specification')
+    def get_values(self):
+        return {spec.id: spec.value for spec in self.values}
+
+
+class SpecificationValue(db.Model):
+    __tablename__ = 'SpecificationValue'
+
+    id = Column(Integer, primary_key=True)
+    specification_id = Column(Integer, ForeignKey('Specification.id', ondelete='CASCADE'), nullable=False)
+    value = Column(String(128), nullable=False)
+
+    specification = relationship('Specification', back_populates='values')
+    products = relationship('SpecificationToProduct', back_populates='specification_value')
 
 
 class SpecificationToProduct(db.Model):
     __tablename__ = 'SpecificationToProduct'
 
     id = Column(Integer, primary_key=True)
-    product_id = Column(Integer, ForeignKey('Product.id'), nullable=False)
-    specification_id = Column(Integer, ForeignKey('ProductSpecification.id'), nullable=False)
+    product_id = Column(Integer, ForeignKey('Product.id', ondelete='CASCADE'), nullable=False)
+    specification_id = Column(Integer, ForeignKey('SpecificationValue.id', ondelete='CASCADE'), nullable=False)
 
-    specification = relationship('ProductSpecification', back_populates='to_product')
+    specification_value = relationship('SpecificationValue', back_populates='products')
     product = relationship('Product', back_populates='specifications')
+
+    def get_specification(self):
+        return {
+            'key': self.specification_value.specification.key,
+            'value': self.specification_value.value
+        }
