@@ -7,3 +7,6 @@ COPY backend/requirements.txt /usr/src/app/requirements.txt
 RUN pip3 install -r requirements.txt
 COPY backend /usr/src/app
 COPY .git /usr/src/app/.git
+RUN flask db init
+RUN flask db migrate
+RUN flask db upgrade
