@@ -230,6 +230,10 @@ class Product(db.Model):
         except ZeroDivisionError:
             return 0
 
+    @property
+    def all_specs(self):
+        return [spec.specification_id for spec in self.specifications]
+
 
 class ProductAvailability(db.Model):
     __tablename__ = 'ProductAvailability'

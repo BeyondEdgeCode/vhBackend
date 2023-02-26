@@ -1,15 +1,13 @@
-from flask import jsonify, current_app
+from typing import List
+
 from api import db
-from flask_jwt_extended import jwt_required
-from api.utils import permission_required
 from apifairy import response, body, arguments
-from api.models import Product, Category, SpecificationToProduct, SpecificationValue, Specification
 from api.models import Specification, SpecificationValue, SpecificationToProduct, Product
 from api.schemas.category import SearchByCategorySchema
-from api.product.specification.schema import SpecificationSchema, SpecificationToProductSchema, \
-    SpecificationValuesSchema
-from sqlalchemy import and_
 from api.product.schema import ProductSchema
+from api.product.specification.schema import SpecificationSchema
+from sqlalchemy import and_
+from .schema import FiltersNewSchema, FiltersSchema
 
 
 @arguments(SearchByCategorySchema)
@@ -28,3 +26,41 @@ def get_filters_by_category(args):
             )
         )
     )
+
+
+@body(FiltersNewSchema)
+@response(ProductSchema(many=True))
+def get_by_filters(data):
+    candidates = []
+    for f in data['filters']:
+        query = db.session.scalars(
+            Product.select()
+            .join(SpecificationToProduct)
+            .where(
+                SpecificationToProduct.specification_id.in_(
+                    f['specs']
+                )
+            )
+        )
+        candidates.append(query)
+
+    ids = []
+    for candidate in candidates:
+        for product in candidate:
+            ids.append(product.id)
+# https://stackoverflow.com/questions/9835762/how-do-i-find-the-duplicates-in-a-list-and-create-another-list-with-them
+    resp = list(set([x for x in ids if ids.count(x) == len(data['filters'])]))
+    return db.session.scalars(
+        Product.select().where(
+            Product.id.in_(resp)
+        )
+    )
+
+
+
+
+
+
+
+
+
