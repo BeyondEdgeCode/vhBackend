@@ -8,6 +8,7 @@ from api.product.schema import ProductSchema
 from api.product.specification.schema import SpecificationSchema
 from sqlalchemy import and_
 from .schema import FiltersNewSchema, FiltersSchema
+from flask_cors import cross_origin
 
 
 @arguments(SearchByCategorySchema)
@@ -28,6 +29,7 @@ def get_filters_by_category(args):
     )
 
 
+@cross_origin()
 @body(FiltersNewSchema)
 @response(ProductSchema(many=True))
 def get_by_filters(data):
@@ -50,6 +52,7 @@ def get_by_filters(data):
             ids.append(product.id)
 # https://stackoverflow.com/questions/9835762/how-do-i-find-the-duplicates-in-a-list-and-create-another-list-with-them
     resp = list(set([x for x in ids if ids.count(x) == len(data['filters'])]))
+    print(ids)
     return db.session.scalars(
         Product.select().where(
             Product.id.in_(resp)

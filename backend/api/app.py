@@ -47,6 +47,7 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config['JSON_SORT_KEYS'] = False
     app.config.from_object(config_class)
+    app.config['CORS_HEADERS'] = 'Content-Type'
 
     # modules
     from . import models
@@ -73,8 +74,7 @@ def create_app(config_class=Config):
         else f'dev:{Config.APP_VERSION}-{Config.GIT_VERSION[0:5]}',
     )
 
-    if app.config['USE_CORS']:
-        cors.init_app(app)
+    cors.init_app(app)
 
     from .router import router
     app.register_blueprint(router)
