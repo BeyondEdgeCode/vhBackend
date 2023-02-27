@@ -1,7 +1,9 @@
+import marshmallow.fields
+
 from api.app import ma
 from api.models import Specification, SpecificationValue, SpecificationToProduct
 from api.product.schema import ProductSchema
-from marshmallow.fields import Method, List
+from marshmallow.fields import Method, List, Dict
 
 
 class SpecificationSchema(ma.SQLAlchemySchema):
@@ -16,6 +18,11 @@ class SpecificationSchema(ma.SQLAlchemySchema):
     values = Method('get_values', dump_only=True)
 
     def get_values(self, data: Specification):
+        if type(data) is dict:
+            return {
+                'max': data['values']['max'],
+                'min': data['values']['min'],
+            }
         return data.get_values()
 
 
@@ -62,3 +69,8 @@ class SpecificationFullSchema(ma.SQLAlchemySchema):
     type = ma.auto_field()
     is_filter = ma.auto_field()
     values = ma.Nested(SpecificationValuesSchema, many=True, only=('id', 'value'))
+
+
+class SpecificationWithCustom(ma.SQLAlchemySchema):
+    filters = ma.Nested(SpecificationSchema, many=True)
+    custom = Dict(marshmallow.fields.Raw())

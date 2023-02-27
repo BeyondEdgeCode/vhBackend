@@ -19,5 +19,9 @@ class FiltersNewSchema(ma.SQLAlchemySchema):
             values=fields.Raw
         )
     )
+    max = fields.Float(load_default=100000.00)
+    min = fields.Float(load_default=0.00)
+    category_id = fields.Int(required=True)
+    available = fields.Bool(load_default=0)
 
 
