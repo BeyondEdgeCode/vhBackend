@@ -5,7 +5,7 @@ from api.schemas.category import SearchByCategorySchema, SearchBySubCategorySche
 from api.product.schema import ProductSchema
 from api.product.specification.schema import SpecificationSchema, SpecificationWithCustom
 from sqlalchemy import and_
-from .schema import FiltersNewSchema
+from .schema import FiltersNewSchema, FiltersSubcategorySchema
 from flask_cors import cross_origin
 
 
@@ -86,7 +86,7 @@ def get_filters_by_subcategory(args):
 
 
 @cross_origin()
-@body(FiltersNewSchema)
+@body(FiltersSubcategorySchema)
 @response(ProductSchema(many=True))
 def get_by_filters(data):
     candidates = []
