@@ -86,7 +86,7 @@ def get_filters_by_subcategory(args):
 
 
 @cross_origin()
-@body(FiltersSubcategorySchema)
+@body(FiltersNewSchema)
 @response(ProductSchema(many=True))
 def get_by_filters(data):
     candidates = []
@@ -138,7 +138,7 @@ def get_by_filters(data):
 
 
 @cross_origin()
-@body(FiltersNewSchema)
+@body(FiltersSubcategorySchema)
 @response(ProductSchema(many=True))
 def get_by_subcategory_filters(data):
     candidates = []
