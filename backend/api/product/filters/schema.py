@@ -25,3 +25,17 @@ class FiltersNewSchema(ma.SQLAlchemySchema):
     available = fields.Bool(load_default=0)
 
 
+class FiltersSubcategorySchema(ma.SQLAlchemySchema):
+    filters = fields.List(
+        fields.Dict(
+            keys=fields.String,
+            values=fields.Raw
+        )
+    )
+    max = fields.Float(load_default=100000.00)
+    min = fields.Float(load_default=0.00)
+    subcategory_id = fields.Int(required=True)
+    available = fields.Bool(load_default=0)
+
+
+

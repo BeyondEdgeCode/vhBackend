@@ -25,10 +25,10 @@ def cli_create(title: str, not_for_children: bool):
 
 @category.command('create-subcategory')
 @click.argument('subcategory_name', required=True)
-@click.argument('caregory_id', required=True)
+@click.argument('category_id', required=True)
 def cli_create_subcategory(subcategory_name: str, category_id: int):
-    category_fk = db.session.scalar(Category.select().where(Category.id == category_id))
-    new_sub_category = SubCategory(title=subcategory_name, category_fk=category_fk)
+    category_fk = db.session.scalar(Category.select().where(Category.id == int(category_id)))
+    new_sub_category = SubCategory(title=subcategory_name, category_fk=category_fk.id)
     db.session.add(new_sub_category)
     db.session.commit()
     print(f'New id {new_sub_category.id}')
