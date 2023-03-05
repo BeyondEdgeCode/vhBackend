@@ -18,13 +18,13 @@ def create(data: PostSchema):
             Favourite.product_fk == data['product_fk']
         )
     )):
-        return jsonify(status=400, msg='Already exist'), 400
+        return jsonify(status=400, msg='Товар уже добавлен в избранное')
 
     new_favourite = Favourite(user_fk=current_user.id, product_fk=data['product_fk'])
     db.session.add(new_favourite)
     db.session.commit()
 
-    return jsonify(status=200, msg='Added')
+    return jsonify(status=200, msg='Товар добавлен в избранное')
 
 
 @jwt_required()
@@ -42,11 +42,11 @@ def get():
 def delete(data: DeleteSchema):
     record: Favourite = db.session.get(Favourite, data['id'])
     if not record:
-        return jsonify(status=404, msg='Not found'), 404
+        return jsonify(status=404, msg='Not found')
     if record.user_fk != current_user.id:
-        return jsonify(status=403, msg='Access denied'), 403
+        return jsonify(status=403, msg='Access denied')
 
     db.session.delete(record)
     db.session.commit()
 
-    return jsonify(status=200, msg='Deleted')
+    return jsonify(status=200, msg='Товар успешно удален из избранных')

@@ -37,7 +37,7 @@ def permission_required(permission):
             if 'admin.all' in permissions or permission in permissions:
                 return fn(*args, **kwargs)
             else:
-                return jsonify(msg=f'Role <{permission}> not found in role <{current_user.role.roleName}>'), 403
+                return jsonify(status=403, msg=f'Role <{permission}> not found in role <{current_user.role.roleName}>')
 
         return decorator
 

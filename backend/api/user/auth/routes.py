@@ -30,16 +30,15 @@ def user_lookup_loader(_jwt_header, jwt_data):
 
 # @response(LoginResponseSchema)
 @body(LoginSchema)
-@other_responses({401: 'Wrong login or password', 403: 'Email is not confirmed'})
 def login(cred):
     user: User = get_first_or_false(User.select().where(User.email == cred['email']))
     if not user:
-        return jsonify(error='Wrong login or password'), 401
+        return jsonify(status=401, error='Wrong login or password')
     if not user.check_password(cred['password']):
-        return jsonify(error='Wrong login or password'), 401
+        return jsonify(status=401, error='Wrong login or password')
 
     if not user.email_confirmed:
-        return jsonify(error='Email is not confirmed'), 403
+        return jsonify(status=403, error='Email is not confirmed')
 
     return {'access_token': create_access_token(identity=user), 'refresh_token': create_refresh_token(identity=user)}
 
