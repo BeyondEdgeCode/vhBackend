@@ -1,5 +1,7 @@
 import enum
 from datetime import datetime, timedelta
+from statistics import mean
+
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy import Integer, String, Float, DateTime, Boolean, JSON, Enum, func
 from sqlalchemy.orm import relationship
@@ -42,6 +44,7 @@ class ObjectStorage(db.Model):
     link = Column(String(1024), index=True)
 
     product = relationship('Product', back_populates='image')
+    other_images = relationship('Product', back_populates='image')
     imagecarousel = relationship('ImageCarousel', back_populates='image')
 
 
@@ -211,6 +214,7 @@ class Product(db.Model):
     liked = relationship('Favourite', back_populates='product')
     in_baskets = relationship('Basket', back_populates='product')
     image = relationship('ObjectStorage', back_populates='product')
+    other_images = relationship('OtherImages', back_populates='product')
     inorders = relationship('OrderItem', back_populates='product')
     reviews = relationship('Reviews', back_populates='product')
     specifications = relationship('SpecificationToProduct', back_populates='product')
@@ -233,6 +237,17 @@ class Product(db.Model):
     @property
     def all_specs(self):
         return [spec.specification_id for spec in self.specifications]
+
+
+class OtherImages(db.Model):
+    __tablename__ = 'OtherImages'
+
+    id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, ForeignKey('Product.id'), nullable=False, index=True)
+    image_id = Column(Integer, ForeignKey('ObjectStorage.id'), nullable=False)
+
+    image = relationship('ObjectStorage', back_populates='other_images')
+    product = relationship('Product', back_populates='other_images')
 
 
 class ProductAvailability(db.Model):
