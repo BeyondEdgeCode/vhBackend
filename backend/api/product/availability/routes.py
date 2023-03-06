@@ -1,4 +1,6 @@
 from flask import jsonify
+from flask_jwt_extended import jwt_required
+
 from api.app import db
 from api.models import ProductAvailability
 from .schema import ProductAvailabilitySchema, ShopIdSchema
@@ -9,6 +11,7 @@ from ...utils import permission_required
 from ...utils import responses
 
 
+@jwt_required()
 @permission_required('admin.product.availability.edit')
 @body(ProductAvailabilitySchema)
 def edit(data):
@@ -26,6 +29,7 @@ def edit(data):
     return responses.throw_200(msg='Ok')
 
 
+@jwt_required()
 @permission_required('admin.product.availability.get')
 @response(ProductAvailabilityResponseSchema(many=True))
 def get_all():
@@ -36,6 +40,7 @@ def get_all():
     return availability
 
 
+@jwt_required()
 @permission_required('admin.product.availability.get')
 @response(ProductAvailabilityResponseSchema(many=True))
 @arguments(ShopIdSchema)
