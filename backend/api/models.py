@@ -44,7 +44,7 @@ class ObjectStorage(db.Model):
     link = Column(String(1024), index=True)
 
     product = relationship('Product', back_populates='image')
-    other_images = relationship('Product', back_populates='image')
+    other_images = relationship('OtherImages', back_populates='image')
     imagecarousel = relationship('ImageCarousel', back_populates='image')
 
 
@@ -123,6 +123,7 @@ class Shop(db.Model):
 
     available = relationship('ProductAvailability', back_populates='shop')
     orders = relationship('Order', back_populates='shop')
+    in_baskets = relationship('Basket', back_populates='shop')
 
 
 class UserRole(db.Model):
@@ -296,10 +297,12 @@ class Basket(db.Model):
     id = Column(Integer, primary_key=True)
     user_fk = Column(Integer, ForeignKey('Users.id'), nullable=False, index=True)
     product_fk = Column(Integer, ForeignKey('Product.id'), nullable=False)
+    shop_id = Column(Integer, ForeignKey('Shop.id'), nullable=False)
     amount = Column(Integer, nullable=False, default=1)
 
     user = relationship('User', back_populates='basket')
     product = relationship('Product', back_populates='in_baskets')
+    shop = relationship('Shop', back_populates='in_baskets')
 
 
 class Order(db.Model):

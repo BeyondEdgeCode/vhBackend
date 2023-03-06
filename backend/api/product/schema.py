@@ -5,7 +5,7 @@ from api.schemas.shop import ShortShopSchema
 from marshmallow import validate
 
 
-class ProductAvailabilitySchema(ma.SQLAlchemySchema):
+class ProductAvailabilityNestedSchema(ma.SQLAlchemySchema):
     class Meta:
         model = ProductAvailability
         include_fk = True
@@ -44,14 +44,26 @@ class ProductSchema(ma.SQLAlchemySchema):
     title = ma.auto_field(dump_only=True)
     description = ma.auto_field(dump_only=True)
     price = ma.auto_field(dump_only=True)
-    referenced_product = ma.Nested(ReferencedProductSchema, dump_only=True, many=True)
     specifications = ma.Method('get_specifications', dump_only=True)
     image_link = ma.String(dump_only=True)
     avg_stars = ma.Integer(dump_only=True)
-    available = ma.Nested(ProductAvailabilitySchema, dump_only=True, many=True)
+    available = ma.Nested(ProductAvailabilityNestedSchema, dump_only=True, many=True)
 
     def get_specifications(self, data: Product):
         return [spec.get_specification() for spec in data.specifications]
+
+
+class ProductShortSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Product
+        include_fk = True
+
+    id = ma.auto_field(dump_only=True)
+    category = ma.Nested(CategoryInfoSchema, dump_only=True)
+    title = ma.auto_field(dump_only=True)
+    price = ma.auto_field(dump_only=True)
+    image_link = ma.String(dump_only=True)
+    avg_stars = ma.Integer(dump_only=True)
 
 
 class ProductCreateSchema(ma.SQLAlchemySchema):

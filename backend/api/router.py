@@ -9,6 +9,7 @@ from .product import product
 from .objectstorage import s3
 from .shop import shop
 from .imagecarousel import imagecarousel
+from .basket import basket
 from flask_jwt_extended import get_jwt, create_access_token, get_jwt_identity, set_access_cookies, jwt_required
 from datetime import datetime, timedelta, timezone
 from api.app import apifairy
@@ -22,6 +23,7 @@ router.register_blueprint(product)
 router.register_blueprint(s3)
 router.register_blueprint(shop)
 router.register_blueprint(imagecarousel)
+router.register_blueprint(basket)
 
 
 @router.before_request

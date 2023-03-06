@@ -44,4 +44,4 @@ class Config:
 
     APIFAIRY_TITLE = 'VapeHookah API'
     APIFAIRY_VERSION = '0.1'
-    APIFAIRY_UI = 'swagger_ui'
+    APIFAIRY_UI = 'rapidoc'
