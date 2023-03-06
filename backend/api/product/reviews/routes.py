@@ -1,3 +1,5 @@
+from flask import jsonify
+from sqlalchemy import and_
 from api.models import Reviews, Product, User
 from api import db
 from apifairy import response, body
@@ -14,6 +16,17 @@ reviewschemamany = ReviewsSchema(many=True)
 @body(reviewschema)
 @response(reviewschema)
 def create(args):
+    if db.session.scalar(
+            Reviews.select()
+                    .where(
+                        and_(
+                            Reviews.product_id == args['product_id'],
+                            Reviews.user_id == current_user.id
+                        )
+            )
+    ):
+        return jsonify(status=409, error='Already exits')
+
     review = Reviews(**args, user_id=current_user.id)
     db.session.add(review)
     db.session.commit()
