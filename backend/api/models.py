@@ -250,6 +250,10 @@ class OtherImages(db.Model):
     image = relationship('ObjectStorage', back_populates='other_images')
     product = relationship('Product', back_populates='other_images')
 
+    @property
+    def links(self):
+        return [link for link in self.image.link]
+
 
 class ProductAvailability(db.Model):
     __tablename__ = 'ProductAvailability'

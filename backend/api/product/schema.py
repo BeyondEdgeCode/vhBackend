@@ -1,8 +1,21 @@
+import urllib
+
 from api.app import ma
-from api.models import Product, ProductAvailability
+from api.models import Product, ProductAvailability, OtherImages
 from api.schemas.category import CategoryInfoSchema
 from api.schemas.shop import ShortShopSchema
 from marshmallow import validate
+
+
+class ProductOtherImagesSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = OtherImages
+
+    id = ma.auto_field()
+    link = ma.Method('get_links', dump_only=True)
+
+    def get_links(self, data: OtherImages):
+        return 'https://storage.yandexcloud.net/vapehookahstatic/' + urllib.parse.quote(data.image.link)
 
 
 class ProductAvailabilityNestedSchema(ma.SQLAlchemySchema):
@@ -46,6 +59,7 @@ class ProductSchema(ma.SQLAlchemySchema):
     price = ma.auto_field(dump_only=True)
     specifications = ma.Method('get_specifications', dump_only=True)
     image_link = ma.String(dump_only=True)
+    other_images = ma.Nested(ProductOtherImagesSchema(many=True), dump_only=True)
     avg_stars = ma.Integer(dump_only=True)
     available = ma.Nested(ProductAvailabilityNestedSchema, dump_only=True, many=True)
 
