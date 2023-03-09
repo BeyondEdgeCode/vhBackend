@@ -29,8 +29,8 @@ def get_users():
 
 
 def version():
-    current_db_ver: CursorResult = db.session.execute("SELECT version_num FROM public.alembic_version").scalar()
+    # current_db_ver: CursorResult = db.session.execute("SELECT version_num FROM public.alembic_version").scalar()
     # return responses.throw_200(msg='Its fine')
     return jsonify(app_version=f'{Config.ENVIRONMENT}_{Config.APP_VERSION}_{Config.GIT_VERSION[0:8]}',
-                   db_version=current_db_ver)
+                    sha=Config.GIT_VERSION)
 
