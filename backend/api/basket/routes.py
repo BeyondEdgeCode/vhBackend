@@ -1,5 +1,7 @@
+import json
+
 from api.models import Basket, Product, ProductAvailability, Shop
-from apifairy import body, response
+from apifairy import body, response, arguments
 from .schema import AddToBasketSchema, BasketSchema, BasketIdSchema
 from flask_cors import cross_origin
 from api.app import db
@@ -121,3 +123,16 @@ def get():
             )
         )
     )
+
+
+@jwt_required()
+@arguments(BasketIdSchema)
+@response(ResponseSchema)
+def delete(data: BasketIdSchema):
+    obj: Basket = db.session.get(Basket, data['id'])
+    if obj.user_fk != current_user.id:
+        return {'status': 400, 'error': 'Wrong user'}
+
+    db.session.delete(obj)
+    db.session.commit()
+    return {'status': 200, 'message': 'Deleted'}
