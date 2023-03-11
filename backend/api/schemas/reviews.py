@@ -14,3 +14,4 @@ class ReviewsSchema(ma.SQLAlchemyAutoSchema):
     user = ma.Nested(UserReviewSchema, dump_only=True)
     stars = ma.auto_field(validate=validate.Range(min=0, max=5))
     text = ma.auto_field(validate=validate.Length(min=0, max=1024))
+    created_at = ma.auto_field(dump_only=True)
