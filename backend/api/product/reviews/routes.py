@@ -14,7 +14,6 @@ reviewschemamany = ReviewsSchema(many=True)
 @jwt_required()
 @permission_required('user.review.create')
 @body(reviewschema)
-@response(reviewschema)
 def create(args):
     if db.session.scalar(
             Reviews.select()
@@ -30,7 +29,7 @@ def create(args):
     review = Reviews(**args, user_id=current_user.id)
     db.session.add(review)
     db.session.commit()
-    return review
+    return jsonify(status=200, error='Created')
 
 
 @response(reviewschemamany)

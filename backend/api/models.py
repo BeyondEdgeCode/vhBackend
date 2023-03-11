@@ -362,6 +362,7 @@ class Reviews(db.Model):
     user_id = Column(Integer, ForeignKey('Users.id'), nullable=False)
     stars = Column(Integer, nullable=False)
     text = Column(String(1024))
+    created_at = Column(DateTime, server_default=func.now())
 
     product = relationship('Product', back_populates='reviews')
     user = relationship('User', back_populates='reviews')
