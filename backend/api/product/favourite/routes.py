@@ -40,7 +40,14 @@ def get():
 @permission_required('user.product.favourite.delete')
 @arguments(DeleteSchema)
 def delete(data: DeleteSchema):
-    record: Favourite = db.session.get(Favourite, data['id'])
+    record: Favourite = db.session.scalar(
+        Favourite.select().where(
+            and_(
+                Favourite.user_fk == current_user.id,
+                Favourite.product_fk == data['id']
+            )
+        )
+    )
     if not record:
         return jsonify(status=404, msg='Not found')
     if record.user_fk != current_user.id:

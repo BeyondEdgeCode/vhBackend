@@ -8,7 +8,6 @@ class GetSchema(ma.SQLAlchemySchema):
         model = Favourite
         include_fk = True
 
-    id = ma.auto_field()
     product = ma.Nested(ProductSchema)
 
 
