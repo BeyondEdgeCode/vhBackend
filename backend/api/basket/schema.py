@@ -1,5 +1,5 @@
 from api.app import ma
-from marshmallow.fields import String, Integer, List
+from marshmallow.fields import String, Integer, List, Float
 from api.models import Product, Basket
 
 
@@ -32,3 +32,4 @@ class BasketAvailabilitySchema(ma.SQLAlchemySchema):
 class BasketWrapperSchema(ma.SQLAlchemySchema):
     products = ma.Nested(BasketSchema(many=True))
     availability = List(ma.Nested(BasketAvailabilitySchema))
+    total = Float()
