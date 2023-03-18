@@ -7,8 +7,10 @@ from api.product.specification.schema import SpecificationSchema, SpecificationW
 from sqlalchemy import and_
 from .schema import FiltersNewSchema, FiltersSubcategorySchema
 from flask_cors import cross_origin
+from api.app import cache
 
 
+@cache.cached(300)
 @arguments(SearchByCategorySchema)
 @response(SpecificationSchema(many=True))
 def get_filters_by_category(args):
@@ -47,6 +49,7 @@ def get_filters_by_category(args):
     return [*filters, max_min_filter]
 
 
+@cache.cached(300)
 @arguments(SearchBySubCategorySchema)
 @response(SpecificationSchema(many=True))
 def get_filters_by_subcategory(args):
@@ -66,7 +69,7 @@ def get_filters_by_subcategory(args):
     products = [*db.session.scalars(
         Product.select()
         .where(
-            Product.subcategory_fk == args['id']
+            Product.category_fk == args['id']
         )
     )]
     product_max = max(products, key=lambda v: v.price)
@@ -85,6 +88,7 @@ def get_filters_by_subcategory(args):
     return [*filters, max_min_filter]
 
 
+@cache.cached(300)
 @cross_origin()
 @body(FiltersNewSchema)
 @response(ProductSchema(many=True))
@@ -137,6 +141,7 @@ def get_by_filters(data):
             )
 
 
+@cache.cached(300)
 @cross_origin()
 @body(FiltersSubcategorySchema)
 @response(ProductSchema(many=True))

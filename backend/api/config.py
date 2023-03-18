@@ -38,6 +38,11 @@ class Config:
     USE_CORS = as_bool(os.environ.get('USE_CORS') or 'false')
     CORS_SUPPORTS_CREDENTIALS = True
 
+    CACHE_TYPE = os.environ.get('CACHE_TYPE') or "SimpleCache"
+    CACHE_DEFAULT_TIMEOUT = os.environ.get('CACHE_DEFAULT_TIMEOUT') or 60
+    CACHE_REDIS_URL = os.environ.get('CACHE_DEFAULT_TIMEOUT') or ''
+
+
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
     AWS_REGION = 'us-east-1'

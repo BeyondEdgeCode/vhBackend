@@ -1,7 +1,4 @@
-from typing import List
-from flask import jsonify
-from api.models import Product, ProductAvailability, Shop, SpecificationValue, Specification,\
-    SpecificationToProduct
+from api.models import Product, ProductAvailability, Shop
 from api import db
 from .schema import ProductSchema, ProductCreateSchema
 from api.schemas.category import SearchByCategorySchema, SearchBySubCategorySchema
@@ -9,9 +6,10 @@ from apifairy import response, body, arguments
 from api.utils import permission_required
 from flask_jwt_extended import jwt_required
 from sqlalchemy import desc
-from api.utils import responses
+from api.app import cache
 
 
+@cache.cached(120)
 @arguments(SearchByCategorySchema)
 @response(ProductSchema(many=True))
 def get_by_category(args):
@@ -19,6 +17,7 @@ def get_by_category(args):
     return products
 
 
+@cache.cached(120)
 @arguments(SearchBySubCategorySchema)
 @response(ProductSchema(many=True))
 def get_by_subcategory(args):
@@ -43,6 +42,7 @@ def create(args):
     return product
 
 
+@cache.cached(600)
 @response(ProductSchema(many=True))
 def get_last_created():
     return db.session.scalars(
@@ -52,6 +52,7 @@ def get_last_created():
     )
 
 
+@cache.cached(120)
 @response(ProductSchema)
 def get_one(product_id):
     return db.session.scalar(

@@ -1,7 +1,6 @@
 import enum
 from datetime import datetime, timedelta
 from statistics import mean
-
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy import Integer, String, Float, DateTime, Boolean, JSON, Enum, func
 from sqlalchemy.orm import relationship
@@ -9,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from api.app import db
 from flask_jwt_extended import get_current_user
 import urllib
+from .app import cache
 
 
 class Updatable:
@@ -136,6 +136,7 @@ class UserRole(db.Model):
     users = relationship('User', back_populates='role')
     permissions = relationship('UserRolePermission', back_populates='role')
 
+    @cache.memoize(50)
     def get_rights(self):
         return [i.permission.key for i in self.permissions]
 
@@ -421,6 +422,7 @@ class Specification(db.Model):
     is_filter = Column(Boolean, default=False)
     values = relationship('SpecificationValue', back_populates='specification')
 
+    @cache.memoize(120)
     def get_values(self):
         return {spec.id: spec.value for spec in self.values}
 
@@ -446,6 +448,7 @@ class SpecificationToProduct(db.Model):
     specification_value = relationship('SpecificationValue', back_populates='products')
     product = relationship('Product', back_populates='specifications')
 
+    @cache.memoize(120)
     def get_specification(self):
         return {
             'key': self.specification_value.specification.key,

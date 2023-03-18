@@ -1,3 +1,4 @@
+import flask
 from apifairy import APIFairy
 from flask import Flask, request
 from alchemical.flask import Alchemical
@@ -10,6 +11,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 import flask_monitoringdashboard as dashboard
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
+from flask_caching import Cache
 
 
 db = Alchemical()
@@ -18,6 +20,7 @@ ma = Marshmallow()
 jwt = JWTManager()
 apifairy = APIFairy()
 cors = CORS()
+cache = Cache()
 # metrics = PrometheusMetrics.for_app_factory()
 
 
@@ -57,6 +60,7 @@ def create_app(config_class=Config):
     jwt.init_app(app)
     apifairy.init_app(app)
     register_cli(app)
+    cache.init_app(app)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
     sentry_sdk.init(
         dsn=Config.SENTRY_DSN,

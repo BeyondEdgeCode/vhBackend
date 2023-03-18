@@ -3,7 +3,7 @@ from apifairy import body, response
 from api.utils import permission_required
 from flask_jwt_extended import jwt_required
 from api.models import ImageCarousel
-from api.app import db
+from api.app import db, cache
 
 icmany = ImageCarouselSchema(many=True)
 
@@ -34,6 +34,7 @@ def update(args):
     return image
 
 
+@cache.cached(600)
 @response(icmany)
 def get_active():
     images = db.session.scalars(

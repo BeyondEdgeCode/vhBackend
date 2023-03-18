@@ -1,16 +1,15 @@
-import json
+
 from typing import List
-
-from flask import jsonify
-
-from api.models import Basket, Product, ProductAvailability, Shop
+from api.models import Basket, ProductAvailability, Shop
 from apifairy import body, response, arguments
-from .schema import AddToBasketSchema, BasketSchema, BasketIdSchema, BasketWrapperSchema
+from .schema import AddToBasketSchema, BasketIdSchema, BasketWrapperSchema
 from flask_cors import cross_origin
 from api.app import db
 from flask_jwt_extended import current_user, jwt_required
 from sqlalchemy import and_, func
 from api.schemas.response import ResponseSchema
+from time import perf_counter_ns
+from api.app import cache
 
 
 @cross_origin()
@@ -111,36 +110,47 @@ def increment(data: BasketIdSchema):
 
     return {'status': 200, 'message': 'Готово'}
 
-
+@cache.cached(10)
 @jwt_required()
 @response(BasketWrapperSchema)
 def get():
-    basket_items: List[Basket] = [*db.session.scalars(
+    start = perf_counter_ns()
+    basket_items: List[Basket] = tuple([*db.session.scalars(
         Basket.select()
         .where(
                 Basket.user_fk == current_user.id
         )
-    )]
-    shops_list: List[Shop] = db.session.scalars(
-        Shop.select()
-    )
-    not_available_info = []
-    for shop in shops_list:
+    )])
+
+    shops_list: List[Shop] = tuple(db.session.scalars(
+            Shop.select()
+        ))
+
+    def map_shops(shop: Shop):
         data = {
-                'shop_id': shop.id,
-                'not_available': []
-                }
-        for item in basket_items:
+            'shop_id': shop.id,
+            'not_available': []
+        }
+
+        def second_map(item: Basket):
             value: ProductAvailability = db.session.scalar(
                 ProductAvailability.select().where(
-                    ProductAvailability.product_id == item.product_fk
+                    and_(
+                        ProductAvailability.product_id == item.product_fk,
+                        ProductAvailability.shop_id == shop.id
+                    )
                 )
             )
             if value.amount < item.amount:
-                data['not_available'].append(item.product_fk)
+                return item.product_fk
 
-        not_available_info.append(data)
+        values = map(second_map, basket_items)
+        data['not_available'] = [*filter(lambda x: x is not None, values)]
+        return data
+
+    not_available_info = [*map(map_shops, shops_list)]
     total = sum([item.product.price * item.amount for item in basket_items], 0.0)
+    print((perf_counter_ns() - start)/1_000_000, 'ms')
     return {'products': basket_items, 'availability': not_available_info, 'total': total}
 
 

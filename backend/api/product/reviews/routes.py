@@ -6,6 +6,7 @@ from apifairy import response, body
 from api.utils import permission_required
 from flask_jwt_extended import jwt_required, current_user
 from api.schemas.reviews import ReviewsSchema
+from api.app import cache
 
 reviewschema = ReviewsSchema()
 reviewschemamany = ReviewsSchema(many=True)
@@ -32,6 +33,7 @@ def create(args):
     return jsonify(status=200, error='Created')
 
 
+@cache.cached(600)
 @response(reviewschemamany)
 def get(product_id):
     reviews = db.session.scalars(Reviews.select().where(Reviews.product_id == product_id))

@@ -2,7 +2,7 @@ import json
 import time
 import flask
 from flask import Blueprint
-from flask import g
+from flask import g, request, current_app
 from .user import user
 from .testing import testing
 from .product import product
@@ -31,14 +31,20 @@ def add_time_measure():
     g.start = time.time()
 
 
-# @router.after_request
-# def inject_response_time(response: flask.Response):
-#     data = response.get_json()
-#     if type(data) is dict:
-#         response_time = time.time() - g.start
-#         data['execution_time'] = response_time
-#         response.data = json.dumps(data)
-#     return response
+@router.before_request
+def logging_before():
+    # Store the start time for the request
+    g.start_time = time.perf_counter()
+
+
+@router.after_request
+def logging_after(response):
+    # Get total time in milliseconds
+    total_time = time.perf_counter() - g.start_time
+    time_in_ms = int(total_time * 1000)
+    # Log the time taken for the endpoint
+    current_app.logger.info('%s ms %s %s %s', time_in_ms, request.method, request.path, dict(request.args))
+    return response
 
 
 @router.after_request

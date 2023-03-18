@@ -5,6 +5,7 @@ from api.models import Category, SubCategory
 from api import db
 from api.schemas.category import CategorySchema, SubCategorySchema
 from apifairy import response
+from api.app import cache
 
 category_schema = CategorySchema(many=True)
 
@@ -41,6 +42,7 @@ def create_subcategory():
     return jsonify(code=200, id=new_subcategory.id)
 
 
+@cache.cached(600)
 @response(category_schema)
 def get_all():
     all_categories = db.session.scalars(Category.select())
