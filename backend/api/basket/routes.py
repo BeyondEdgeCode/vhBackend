@@ -140,7 +140,7 @@ def get():
                 data['not_available'].append(item.product_fk)
 
         not_available_info.append(data)
-    total = sum([item.product.price for item in basket_items], 0.0)
+    total = sum([item.product.price * item.amount for item in basket_items], 0.0)
     return {'products': basket_items, 'availability': not_available_info, 'total': total}
 
 
