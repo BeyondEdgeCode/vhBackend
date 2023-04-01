@@ -219,6 +219,10 @@ class Product(db.Model):
     inorders = relationship('OrderItem', back_populates='product')
     reviews = relationship('Reviews', back_populates='product')
     specifications = relationship('SpecificationToProduct', back_populates='product')
+    discounts = relationship('DiscountToProduct', back_populates='product')
+    promocodes = relationship('PromocodeToProduct', back_populates='product')
+
+
 
     @property
     def image_link(self):
@@ -383,8 +387,39 @@ class Promocode(db.Model):
     value = Column(Integer, nullable=False)
 
     promotype = relationship('PromoType', back_populates='promocodes')
+    to_products = relationship('PromocodeToProduct', back_populates='promocode')
 
-#     TODO: Tokens, Акции, Скидочные карты
+
+class PromocodeToProduct(db.Model):
+    __tablename__ = 'PromocodeToProduct'
+
+    id = Column(Integer, primary_key=True)
+    promocode_id = Column(ForeignKey('Promocode.id'), nullable=False)
+    product_id = Column(ForeignKey('Product.id'), nullable=False)
+
+    product = relationship('Product', back_populates='promocodes')
+    promocode = relationship('Promocode', back_populates='to_products')
+
+
+class Discount(db.Model):
+    __tablename__ = 'Discount'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(64), nullable=False)
+    discount_type = Column(String(64), nullable=False, index=True)
+    value = Column(Integer)
+
+    to_products = relationship('DiscountToProduct', back_populates='discount')
+
+
+class DiscountToProduct(db.Model):
+    __tablename__ = 'DiscountToProduct'
+
+    id = Column(Integer, primary_key=True)
+    discount_id = Column(ForeignKey('Discount.id'), nullable=False)
+    product_id = Column(ForeignKey('Product.id'), nullable=False)
+
+    product = relationship('Product', back_populates='discounts')
+    discount = relationship('Discount', back_populates='to_products')
 
 
 class RevokedTokens(db.Model):
