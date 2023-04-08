@@ -88,7 +88,6 @@ def get_filters_by_subcategory(args):
     return [*filters, max_min_filter]
 
 
-@cache.cached(300)
 @cross_origin()
 @body(FiltersNewSchema)
 @response(ProductSchema(many=True))
@@ -141,7 +140,6 @@ def get_by_filters(data):
             )
 
 
-@cache.cached(300)
 @cross_origin()
 @body(FiltersSubcategorySchema)
 @response(ProductSchema(many=True))
