@@ -27,6 +27,13 @@ class OrderStatus(enum.Enum):
     canceled_by_user = 6
 
 
+class PromoRestriction(enum.Enum):
+    product_only = 0
+    category_only = 1
+    subcategory_only = 2
+    all = 3
+
+
 class DeliveryType(enum.Enum):
     pickup = 0
     delivery = 1
@@ -385,6 +392,8 @@ class Promocode(db.Model):
     promotype_fk = Column(Integer, ForeignKey('PromoType.id'), nullable=False)
     key = Column(String(64), nullable=False, index=True)
     value = Column(Integer, nullable=False)
+    is_enabled = Column(Boolean, default=True)
+    available_until = Column(DateTime, nullable=False)
 
     promotype = relationship('PromoType', back_populates='promocodes')
     to_products = relationship('PromocodeToProduct', back_populates='promocode')
