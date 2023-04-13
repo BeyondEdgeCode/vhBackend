@@ -1,5 +1,5 @@
 from flask import Blueprint
-from .routes import create_promotype, get_promotypes, create, assign, get
+from .routes import create_promotype, get_promotypes, create, assign, get, check
 
 promocode = Blueprint('promocode', __name__, url_prefix='/promocode')
 
@@ -9,3 +9,4 @@ promocode.add_url_rule('/type/get', 'type_get', get_promotypes, methods=['GET'])
 promocode.add_url_rule('/create', 'create', create, methods=['POST'])
 promocode.add_url_rule('/get', 'get', get, methods=['GET'])
 promocode.add_url_rule('/assign', 'assign', assign, methods=['POST'])
+promocode.add_url_rule('/check', 'check', check, methods=['POST'])

@@ -393,7 +393,11 @@ class Promocode(db.Model):
     key = Column(String(64), nullable=False, index=True)
     value = Column(Integer, nullable=False)
     is_enabled = Column(Boolean, default=True)
-    available_until = Column(DateTime, nullable=False)
+    available_until = Column(DateTime, nullable=False, server_default=func.now())
+    new_only = Column(Boolean, default=False)
+    min_sum = Column(Float(2), default=0.0)
+    max_usages = Column(Integer, default=0)
+    current_usages = Column(Integer, default=0)
 
     promotype = relationship('PromoType', back_populates='promocodes')
     to_products = relationship('PromocodeToProduct', back_populates='promocode')

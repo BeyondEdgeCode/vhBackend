@@ -49,6 +49,8 @@ def logging_after(response):
     return response
 
 
+# TODO: Need to rewrite this code, because sometimes causes exception when token expired
+# TODO: Need example of exception
 @router.after_request
 def refresh_expiring_jwts(response):
     try:

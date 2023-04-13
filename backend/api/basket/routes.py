@@ -126,6 +126,7 @@ def get():
             Shop.select()
         ))
 
+    # Its terrible!
     def map_shops(shop: Shop):
         data = {
             'shop_id': shop.id,
@@ -150,7 +151,6 @@ def get():
 
     not_available_info = [*map(map_shops, shops_list)]
     total = sum([item.product.price * item.amount for item in basket_items], 0.0)
-    print((perf_counter_ns() - start)/1_000_000, 'ms')
     return {'products': basket_items, 'availability': not_available_info, 'total': total}
 
 

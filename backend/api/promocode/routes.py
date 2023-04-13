@@ -1,11 +1,16 @@
+import datetime
+from typing import List
 from flask import jsonify
-from api.models import Category, PromoType, Promocode, PromocodeToProduct, Product, SubCategory
+from sqlalchemy import and_, func, select, text
+from api.models import Category, PromoType, Promocode, PromocodeToProduct, Product, SubCategory, Basket
 from apifairy import response, body
 from .schema import PromoTypeSchema, PromocodeAssignSchema
-from .schema import PromocodeSchema
+from .schema import PromocodeSchema, PromocodeCheckSchema
 from api.app import db
 from flask_jwt_extended import jwt_required
 from api.utils import permission_required
+from flask_jwt_extended import current_user
+from flask import current_app
 
 
 @jwt_required()
@@ -114,8 +119,60 @@ def get():
 
 
 @jwt_required()
-def check():
-    ...
+@body(PromocodeCheckSchema)
+def check(args):
+    promocode: Promocode = db.session.scalar(
+        Promocode.select().where(
+            Promocode.key == args['promocode']
+        )
+    )
 
+    if not promocode:
+        current_app.logger.info('Promocode not found')
+        return jsonify(status=404, msg='Promocode is not valid')
 
+    if promocode.current_usages >= promocode.max_usages:
+        current_app.logger.info('promocode.current_usages >= promocode.max_usages')
+        return jsonify(status=404, msg='Promocode is not valid')
 
+    if datetime.datetime.now() >= promocode.available_until:
+        current_app.logger.info('promocode.available_until >= datetime.datetime.now()')
+        return jsonify(status=404, msg='Promocode is not valid')
+
+    user_basket: List[Basket] = db.session.scalars(
+        Basket.select().where(
+            Basket.user_fk == current_user.id
+        )
+    )
+
+    basket_ids = {product.product_fk for product in user_basket}
+    promocode_assigned_products = {promo_to_prod.product_id for promo_to_prod in promocode.to_products}
+
+    intersection = basket_ids.intersection(promocode_assigned_products)
+
+    # Удачи будущему мне разобраться с этим
+    basket_intersection_sum = db.session.scalar(
+            select(
+                func.sum(Basket.amount * Product.price)
+            )
+            .select_from(Product)
+            .join(Basket)
+            .where(
+                and_(
+                    Basket.user_fk == current_user.id,
+                    Product.id.in_(intersection)
+                )
+            )
+    )
+
+    if not intersection or basket_intersection_sum <= promocode.min_sum:
+        current_app.logger.info(f'intersection: {intersection}')
+        current_app.logger.info(f'sum: {basket_intersection_sum}')
+        current_app.logger.info(f'min sum: {promocode.min_sum}')
+        return jsonify(error=400, msg='Not applicable')
+
+    return jsonify(promocode=args['promocode'],
+                   intersection_sum=basket_intersection_sum,
+                   intersection=list(intersection),
+                   type=promocode.promotype.type,
+                   value=promocode.value)

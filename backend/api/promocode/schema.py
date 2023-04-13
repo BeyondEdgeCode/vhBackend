@@ -3,8 +3,10 @@ from marshmallow.base import SchemaABC
 from api.app import ma
 from marshmallow.fields import Integer, String, List, DateTime
 from marshmallow.fields import Nested
+from marshmallow.schema import Schema
 from api.models import PromoType
 from api.models import Promocode
+
 
 class PromoTypeSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -24,6 +26,9 @@ class PromocodeSchema(ma.SQLAlchemySchema):
     value = ma.auto_field()
     is_enabled = ma.auto_field()
     available_until = ma.auto_field()
+    new_only = ma.auto_field()
+    min_sum = ma.auto_field()
+    max_usages = ma.auto_field()
     promotype = ma.Nested(PromoTypeSchema(only=["type"]), dump_only=True, )
 
 
@@ -32,3 +37,7 @@ class PromocodeAssignSchema(ma.SQLAlchemySchema):
     products = List(Integer, load_default=[])
     categories = List(Integer, load_default=[])
     subcategories = List(Integer, load_default=[])
+
+
+class PromocodeCheckSchema(Schema):
+    promocode = String(required=True)
