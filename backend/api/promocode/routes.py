@@ -50,7 +50,7 @@ def assign(args):
     print(args)
 
     if not promocode:
-        return jsonify(status=404, msg='Promocode not found')
+        return jsonify(status=404, msg='Промокод не найден')
 
     total_added = 0
     total_errors = 0
@@ -129,15 +129,15 @@ def check(args):
 
     if not promocode:
         current_app.logger.info('Promocode not found')
-        return jsonify(status=404, msg='Promocode is not valid')
+        return jsonify(status=404, msg='Промокод не найден')
 
     if promocode.current_usages >= promocode.max_usages:
         current_app.logger.info('promocode.current_usages >= promocode.max_usages')
-        return jsonify(status=404, msg='Promocode is not valid')
+        return jsonify(status=404, msg='Промокод достиг максимума использований')
 
     if datetime.datetime.now() >= promocode.available_until:
         current_app.logger.info('promocode.available_until >= datetime.datetime.now()')
-        return jsonify(status=404, msg='Promocode is not valid')
+        return jsonify(status=404, msg='Срок действия промокода истек')
 
     user_basket: List[Basket] = db.session.scalars(
         Basket.select().where(
@@ -165,11 +165,12 @@ def check(args):
             )
     )
 
+    current_app.logger.info(f'intersection: {intersection}')
+    current_app.logger.info(f'sum: {basket_intersection_sum}')
+    current_app.logger.info(f'min sum: {promocode.min_sum}')
+
     if not intersection or basket_intersection_sum <= promocode.min_sum:
-        current_app.logger.info(f'intersection: {intersection}')
-        current_app.logger.info(f'sum: {basket_intersection_sum}')
-        current_app.logger.info(f'min sum: {promocode.min_sum}')
-        return jsonify(error=400, msg='Not applicable')
+        return jsonify(error=400, msg='Не пременим')
 
     return jsonify(promocode=args['promocode'],
                    intersection_sum=basket_intersection_sum,
