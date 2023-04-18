@@ -1,9 +1,8 @@
 from api.app import ma
-from api.models import Shop
+from marshmallow.fields import String
+from marshmallow.fields import Integer
 
 
 class CreateOrderSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = Shop
-
-    
+    promocode = String(load_default=None)
+    shop_id = Integer(required=True)

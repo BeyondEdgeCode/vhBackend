@@ -327,8 +327,7 @@ class Order(db.Model):
     delivery_type = Column(Enum(DeliveryType), nullable=False)
     payment_type = Column(Enum(PaymentType), nullable=False)
     sum = Column(Float(2), nullable=False)
-    # TODO: Used promocodes
-    # TODO: Used promo
+    used_promocode = Column(Integer, ForeignKey('Promocode.id'), nullable=True)
     shop_fk = Column(Integer, ForeignKey('Shop.id'), index=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -337,6 +336,7 @@ class Order(db.Model):
     shop = relationship('Shop', back_populates='orders')
     reserved = relationship('ProductReserve', back_populates='order')
     items = relationship('OrderItem', back_populates='order')
+    promocode_ref = relationship('Promocode', back_populates='used_at')
 
 
 class OrderItem(db.Model):
@@ -347,6 +347,7 @@ class OrderItem(db.Model):
     order_fk = Column(Integer, ForeignKey('Order.id'), nullable=False)
     price = Column(Float(2), nullable=False)
     amount = Column(Integer, nullable=False)
+    item_sum = Column(Float(2), nullable=False)
 
     product = relationship('Product', back_populates='inorders')
     order = relationship('Order', back_populates='items')
@@ -401,6 +402,7 @@ class Promocode(db.Model):
 
     promotype = relationship('PromoType', back_populates='promocodes')
     to_products = relationship('PromocodeToProduct', back_populates='promocode')
+    used_at = relationship('Order', back_populates='promocode_ref')
 
 
 class PromocodeToProduct(db.Model):

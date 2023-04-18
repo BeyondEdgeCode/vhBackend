@@ -118,15 +118,7 @@ def get():
     return promocodes
 
 
-@jwt_required()
-@body(PromocodeCheckSchema)
-def check(args):
-    promocode: Promocode = db.session.scalar(
-        Promocode.select().where(
-            Promocode.key == args['promocode']
-        )
-    )
-
+def check_validity(promocode):
     if not promocode:
         current_app.logger.info('Promocode not found')
         return jsonify(status=404, msg='Промокод не найден')
@@ -139,6 +131,8 @@ def check(args):
         current_app.logger.info('promocode.available_until >= datetime.datetime.now()')
         return jsonify(status=404, msg='Срок действия промокода истек')
 
+
+def find_intersection(promocode):
     user_basket: List[Basket] = db.session.scalars(
         Basket.select().where(
             Basket.user_fk == current_user.id
@@ -152,25 +146,46 @@ def check(args):
 
     # Удачи будущему мне разобраться с этим
     basket_intersection_sum = db.session.scalar(
-            select(
-                func.sum(Basket.amount * Product.price)
+        select(
+            func.sum(Basket.amount * Product.price)
+        )
+        .select_from(Product)
+        .join(Basket)
+        .where(
+            and_(
+                Basket.user_fk == current_user.id,
+                Product.id.in_(intersection)
             )
-            .select_from(Product)
-            .join(Basket)
-            .where(
-                and_(
-                    Basket.user_fk == current_user.id,
-                    Product.id.in_(intersection)
-                )
-            )
+        )
+    )
+    return intersection, basket_intersection_sum, user_basket
+
+
+def check_min_sum(intersection, basket_intersection_sum, promocode):
+    if not intersection or basket_intersection_sum < promocode.min_sum:
+        return jsonify(error=400,
+                       msg=f'Не выполнено условие, минимальная сумма акционных товаров: {promocode.min_sum} руб.')
+    else:
+        return True
+
+
+@jwt_required()
+@body(PromocodeCheckSchema)
+def check(args):
+    promocode: Promocode = db.session.scalar(
+        Promocode.select().where(
+            Promocode.key == args['promocode']
+        )
     )
 
-    current_app.logger.info(f'intersection: {intersection}')
-    current_app.logger.info(f'sum: {basket_intersection_sum}')
-    current_app.logger.info(f'min sum: {promocode.min_sum}')
+    check_validity_res = check_validity(promocode)
+    if check_validity_res:
+        return check_validity_res
 
-    if not intersection or basket_intersection_sum <= promocode.min_sum:
-        return jsonify(error=400, msg='Не пременим')
+    intersection, basket_intersection_sum, _ = find_intersection(promocode)
+    valid_promocode = check_min_sum(intersection, basket_intersection_sum, promocode)
+    if valid_promocode != True:
+        return valid_promocode
 
     return jsonify(promocode=args['promocode'],
                    intersection_sum=basket_intersection_sum,

@@ -1,6 +1,5 @@
-import json
+
 import time
-import flask
 from flask import Blueprint
 from flask import g, request, current_app
 from .user import user
@@ -11,10 +10,9 @@ from .shop import shop
 from .imagecarousel import imagecarousel
 from .basket import basket
 from .promocode import promocode
+from .order import order
 from flask_jwt_extended import get_jwt, create_access_token, get_jwt_identity, set_access_cookies, jwt_required
 from datetime import datetime, timedelta, timezone
-from api.app import apifairy
-from .utils import permission_required
 
 router = Blueprint('app', __name__)
 
@@ -26,6 +24,7 @@ router.register_blueprint(shop)
 router.register_blueprint(imagecarousel)
 router.register_blueprint(basket)
 router.register_blueprint(promocode)
+router.register_blueprint(order)
 
 
 @router.before_request
