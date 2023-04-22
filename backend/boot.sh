@@ -5,4 +5,4 @@ echo "db migrate"
 flask db migrate
 echo "db upgrade"
 flask db upgrade
-exec gunicorn -b :5000 --access-logfile - --error-logfile - vapehookah:app
+exec gunicorn -b :5000 --access-logfile - --error-logfile - --workers 4 vapehookah:app
