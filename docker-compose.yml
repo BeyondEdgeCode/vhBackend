@@ -16,13 +16,13 @@ services:
     build: ./
     volumes:
       - backend_data:/usr/src/app/migrations
-    command: gunicorn --bind 0.0.0.0:5000 --workers 4 vapehookah:app
     ports:
       - "80:5000"
     env_file:
       - ./.env
     depends_on:
       - postgres
+    restart: always
 volumes:
   postgres_data:
   backend_data:
