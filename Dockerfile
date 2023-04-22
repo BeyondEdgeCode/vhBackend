@@ -12,4 +12,4 @@ COPY backend /usr/src/app
 COPY .git /usr/src/app/.git
 
 EXPOSE 5000
-CMD ./boot.sh
+ENTRYPOINT ["sh", "./boot.sh"]
