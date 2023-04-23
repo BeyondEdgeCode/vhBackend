@@ -2,6 +2,7 @@ version: "3"
 services:
 
   postgres:
+    container_name: postgres
     image: postgres:latest
     volumes:
       - postgres_data:/var/lib/postgresql/data/
@@ -13,6 +14,7 @@ services:
       - "5432:5432"
 
   backend:
+    container_name: backend
     build: ./
     volumes:
       - backend_data:/usr/src/app/migrations
@@ -23,6 +25,22 @@ services:
     depends_on:
       - postgres
     restart: always
+
+  elastic:
+    container_name: elastic
+    image: elasticsearch:8.7.0
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+
 volumes:
   postgres_data:
   backend_data:
+  elasticsearch-data:
+    driver: local
