@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List
 from flask import jsonify, current_app
 from sqlalchemy import and_, desc
-
+from sqlalchemy.engine import ScalarResult
 from api.models import Order, OrderItem, OrderStatus, Basket, DeliveryType, PaymentType
 from api.models import ProductAvailability, Promocode
 from apifairy import body, response, arguments
@@ -89,28 +89,22 @@ def get_by_user():
 @jwt_required()
 @permission_required('admin.orders.read')
 @arguments(GetByAdminSchema)
-@response(OrderSchema)
+@response(OrderSchema(many=True))
 def get_by_admin(args):
     def get_lambda_1(arg):
         if arg:
-            return lambda: Order.status in (OrderStatus.forming,
-                                            OrderStatus.awaiting_payment,
-                                            OrderStatus.in_delivery,
-                                            OrderStatus.waiting_to_receive)
+            return lambda: Order.status.in_(['forming',
+                                             'awaiting_payment',
+                                             'in_delivery',
+                                             'waiting_to_receive'])
         else:
-            return lambda: Order.status in (OrderStatus.awaiting_payment,
-                                            OrderStatus.forming,
-                                            OrderStatus.waiting_to_receive,
-                                            OrderStatus.in_delivery,
-                                            OrderStatus.finished,
-                                            OrderStatus.canceled_by_system,
-                                            OrderStatus.canceled_by_user)
+            return lambda: Order.status.in_([e.name for e in OrderStatus])
 
     def get_lambda_2(arg):
         if arg:
-            return lambda: Order.shop_fk == args['shop_id']
+            return lambda: Order.shop_fk == 1
         else:
-            return lambda: 1 == 1  # LoL XD
+            return lambda: Order.shop_fk != 0
 
     l1 = get_lambda_1(args['active_only'])
     l2 = get_lambda_2(args['current_shop_only'])

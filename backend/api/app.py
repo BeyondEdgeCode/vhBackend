@@ -62,8 +62,8 @@ def create_app(config_class=Config):
     # APIFairy security
     from flask_jwt_extended import jwt_required
     from .utils import permission_required
-    app.config['APIFAIRY_APISPEC_DECORATORS'] = [(permission_required('admin.docs')), (jwt_required())]
-    app.config['APIFAIRY_UI_DECORATORS'] = [(permission_required('admin.docs')), (jwt_required())]
+    # app.config['APIFAIRY_APISPEC_DECORATORS'] = [(permission_required('admin.docs')), (jwt_required())]
+    # app.config['APIFAIRY_UI_DECORATORS'] = [(permission_required('admin.docs')), (jwt_required())]
     apifairy.init_app(app)
     register_cli(app)
     cache.init_app(app)
