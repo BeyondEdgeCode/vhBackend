@@ -108,7 +108,7 @@ def get_by_admin(args):
 
     def get_lambda_2(arg):
         if arg:
-            return lambda: Order.shop.id == args['shop_id']
+            return lambda: Order.shop_fk == args['shop_id']
         else:
             return lambda: 1 == 1  # LoL XD
 
