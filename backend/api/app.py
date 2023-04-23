@@ -12,6 +12,7 @@ import flask_monitoringdashboard as dashboard
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 from flask_caching import Cache
+from elasticsearch import Elasticsearch
 
 
 db = Alchemical()
@@ -52,6 +53,8 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     app.config['CORS_HEADERS'] = 'Content-Type'
 
+    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
+        if app.config['ELASTICSEARCH_URL'] else None
 
     # modules
     from . import models
