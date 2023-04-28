@@ -70,11 +70,13 @@ class ProductSchema(ma.SQLAlchemySchema):
 class ProductShortSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Product
+        ordered = True
         include_fk = True
 
     id = ma.auto_field(dump_only=True)
     category = ma.Nested(CategoryInfoSchema, dump_only=True)
     title = ma.auto_field(dump_only=True)
+    description = ma.auto_field(dump_only=True)
     price = ma.auto_field(dump_only=True)
     image_link = ma.String(dump_only=True)
     avg_stars = ma.Integer(dump_only=True)

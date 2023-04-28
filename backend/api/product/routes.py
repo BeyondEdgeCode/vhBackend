@@ -1,3 +1,5 @@
+from flask import current_app, jsonify
+
 from api.models import Product, ProductAvailability, Shop
 from api import db
 from .schema import ProductSchema, ProductCreateSchema
@@ -7,6 +9,7 @@ from api.utils import permission_required
 from flask_jwt_extended import jwt_required
 from sqlalchemy import desc
 from api.app import cache
+from api.search_utils import add_to_index
 
 
 @cache.cached(120)
@@ -39,7 +42,14 @@ def create(args):
         db.session.add(ProductAvailability(product=product, shop=shop, amount=0))
     db.session.commit()
 
+    add_to_index('products', product)
     return product
+
+
+#
+# @jwt_required()
+# @permission_required('admin.search.read')
+# def read_search():
 
 
 @cache.cached(600)
@@ -48,7 +58,7 @@ def get_last_created():
     return db.session.scalars(
         Product.select().order_by(
             desc(Product.created_at)
-        )
+        ).limit(10)
     )
 
 
@@ -59,58 +69,3 @@ def get_one(product_id):
         Product.select().where(Product.id == product_id)
     )
 
-# @jwt_required()
-# @permission_required('admin.product.delete')
-# @body()
-
-# @jwt_required()
-# @permission_required('admin.specifications.add')
-# @body(specifications_schema)
-# @response(specifications_schema)
-# def add_specifications(args):
-#     commit_list: List[ProductSpecification] = []
-#     for arg in args:
-#         commit_list.append(ProductSpecification(**arg))
-#
-#     db.session.add_all(commit_list)
-#     db.session.commit()
-#
-#     return commit_list
-
-
-# @jwt_required()
-# @permission_required('admin.specifications.assign')
-# @body(AssignSpecificationSchema)
-# def assign_specification(data):
-#     spec = SpecificationToProduct(**data)
-#     db.session.add(spec)
-#     db.session.commit()
-#     return responses.throw_200(msg='Added')
-
-
-# @arguments(get_specification_schema)
-# @response(specifications_schema)
-# def get_specifications(args):
-#     return db.session.scalars(
-#         ProductSpecification.select().where(ProductSpecification.to_product.id == args['product_id'])
-#     )
-
-#
-# @body(mod_specification_schema)
-# @response(specifications_schema)
-# def edit_specification(args):
-#     commit_list = []
-#     for arg in args:
-#         if specification := db.session.get(ProductSpecification, arg['id']):
-#             specification.key = arg['key']
-#             specification.value = arg['value']
-#             commit_list.append(specification)
-#
-#     db.session.add_all(commit_list)
-#     db.session.commit()
-#
-#     return commit_list
-
-
-def delete_specification():
-    pass

@@ -11,6 +11,7 @@ from .imagecarousel import imagecarousel
 from .basket import basket
 from .promocode import promocode
 from .order import order
+from .search import search
 from flask_jwt_extended import get_jwt, create_access_token, get_jwt_identity, set_access_cookies, jwt_required
 from datetime import datetime, timedelta, timezone
 
@@ -25,11 +26,7 @@ router.register_blueprint(imagecarousel)
 router.register_blueprint(basket)
 router.register_blueprint(promocode)
 router.register_blueprint(order)
-
-
-@router.before_request
-def add_time_measure():
-    g.start = time.time()
+router.register_blueprint(search)
 
 
 @router.before_request
@@ -39,12 +36,15 @@ def logging_before():
 
 
 @router.after_request
+@jwt_required(optional=True)
 def logging_after(response):
     # Get total time in milliseconds
     total_time = time.perf_counter() - g.start_time
     time_in_ms = int(total_time * 1000)
     # Log the time taken for the endpoint
-    current_app.logger.info('%s ms %s %s %s', time_in_ms, request.method, request.path, dict(request.args))
+    current_app.logger.info(f'{request.remote_addr} -- {response.status} | {request.method} | {request.path} | '
+                            f'Time(ms): {time_in_ms}| User: {get_jwt_identity()} | Args: {dict(request.args)} | '
+                            f'Body: {dict(request.json) if request.is_json else None}')
     return response
 
 
