@@ -177,6 +177,7 @@ class Permission(db.Model):
 
 class Category(db.Model):
     __tablename__ = 'Category'
+    __searchable__ = ['title']
 
     id = Column(Integer, primary_key=True)
     title = Column(String(64), index=True)
@@ -188,6 +189,7 @@ class Category(db.Model):
 
 class SubCategory(db.Model):
     __tablename__ = 'SubCategory'
+    __searchable__ = ['title']
 
     id = Column(Integer, primary_key=True)
     title = Column(String(64), index=True)
@@ -199,6 +201,7 @@ class SubCategory(db.Model):
 
 class Product(db.Model):
     __tablename__ = 'Product'
+    __searchable__ = ['title', 'description']
 
     id = Column(Integer, primary_key=True)
     title = Column(String(128), index=True, nullable=False)

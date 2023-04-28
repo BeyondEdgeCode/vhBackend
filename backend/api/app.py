@@ -1,3 +1,5 @@
+import logging
+
 import flask
 from apifairy import APIFairy
 from flask import Flask, request
@@ -52,6 +54,9 @@ def create_app(config_class=Config):
     app.config['JSON_SORT_KEYS'] = False
     app.config.from_object(config_class)
     app.config['CORS_HEADERS'] = 'Content-Type'
+
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
 
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
