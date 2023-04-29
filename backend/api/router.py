@@ -43,7 +43,7 @@ def logging_after(response):
     time_in_ms = int(total_time * 1000)
     # Log the time taken for the endpoint
     current_app.logger.info(f'{request.remote_addr} -- {response.status} | {request.method} | {request.path} | '
-                            f'Time(ms): {time_in_ms}| User: {get_jwt_identity()} | Args: {dict(request.args)} | '
+                            f'Time(ms): {time_in_ms}| User: TODO | Args: {dict(request.args)} | '
                             f'Body: {dict(request.json) if request.is_json else None}')
     return response
 
