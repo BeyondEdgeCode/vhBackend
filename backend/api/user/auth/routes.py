@@ -11,6 +11,8 @@ from datetime import datetime, timezone
 from api.app import jwt
 from apifairy import body, response, other_responses
 from api.schemas.auth import LoginSchema, LoginResponseSchema, RegisterSchema
+from flask_cors import cross_origin
+
 
 jwt.unauthorized_loader(lambda auth: (jsonify({'error': 'Not authorized'}), 401))
 jwt.revoked_token_loader(lambda auth: (jsonify({'error': 'Token has been revoked'}), 403))
@@ -29,6 +31,7 @@ def user_lookup_loader(_jwt_header, jwt_data):
 
 
 # @response(LoginResponseSchema)
+@cross_origin()
 @body(LoginSchema)
 def login(cred):
     user: User = get_first_or_false(User.select().where(User.email == cred['email']))
@@ -55,6 +58,7 @@ def logout():
     return jsonify(msg=f"{ttype.capitalize()} token successfully revoked")
 
 
+@cross_origin()
 @body(RegisterSchema)
 def register(user_info):
     # TODO: Add birthday check
