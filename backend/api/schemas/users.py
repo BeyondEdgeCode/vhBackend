@@ -5,7 +5,7 @@ from api.models import User
 class UserSchema(ma.SQLAlchemySchema):
     class Meta:
         model = User
-        # ordered = True
+        ordered = True
         include_fk = True
 
     id = ma.auto_field()

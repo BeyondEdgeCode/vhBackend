@@ -1,6 +1,6 @@
 from api.app import ma
 from marshmallow import fields
-
+from api.schemas.users import UserSchema
 
 class LoginSchema(ma.SQLAlchemySchema):
     email = fields.Email(required=True)
@@ -17,3 +17,12 @@ class RegisterSchema(ma.SQLAlchemySchema):
 class LoginResponseSchema(ma.SQLAlchemySchema):
     access_token = fields.String(length=261)
     refresh_token = fields.String(length=263)
+
+
+class UserInfoSchema(ma.SQLAlchemySchema):
+    class Meta:
+        ordered = True
+    id = fields.Integer()
+    role = fields.String()
+    permissions = fields.List(fields.String())
+    user = ma.Nested(UserSchema)

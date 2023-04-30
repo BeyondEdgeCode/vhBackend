@@ -10,7 +10,7 @@ from api.app import db
 from datetime import datetime, timezone
 from api.app import jwt
 from apifairy import body, response, other_responses
-from api.schemas.auth import LoginSchema, LoginResponseSchema, RegisterSchema
+from api.schemas.auth import LoginSchema, LoginResponseSchema, RegisterSchema, UserInfoSchema
 from flask_cors import cross_origin
 
 
@@ -75,10 +75,10 @@ def register(user_info):
 
 
 @jwt_required()
+@response(UserInfoSchema)
 def me():
-    return jsonify(id=current_user.id, role=current_user.role.roleName, permissions=current_user.role.get_rights())
-
-
-
-
-
+    return {'id': current_user.id,
+            'role': current_user.role.roleName,
+            'permissions': current_user.role.get_rights(),
+            'user': current_user
+            }
