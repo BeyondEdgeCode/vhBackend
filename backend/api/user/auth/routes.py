@@ -9,8 +9,8 @@ from api.models import User, RevokedTokens, UserRole
 from api.app import db
 from datetime import datetime, timezone
 from api.app import jwt
-from apifairy import body, response, other_responses
-from api.schemas.auth import LoginSchema, LoginResponseSchema, RegisterSchema, UserInfoSchema
+from apifairy import body, response, other_responses, authenticate
+from api.schemas.auth import LoginSchema, LoginResponseSchema, RegisterSchema, UserInfoSchema, UserSchema
 from flask_cors import cross_origin
 
 
@@ -82,3 +82,14 @@ def me():
             'permissions': current_user.role.get_rights(),
             'user': current_user
             }
+
+
+@jwt_required()
+@body(UserSchema(exclude=['id', 'registrationDate', 'email_confirmed']))
+def me_update(args: dict):
+    user = db.session.get(User, current_user.id)
+    for k, v in args.items():
+        setattr(user, k, v)
+    db.session.add(user)
+    db.session.commit()
+    return jsonify(status=200, msg='Данные обновлены')
