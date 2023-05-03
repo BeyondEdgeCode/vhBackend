@@ -69,6 +69,7 @@ class User(db.Model):
     firstName = Column(String(64), index=True)
     lastName = Column(String(64), index=True)
     birthday = Column(DateTime)
+    mobilephone = Column(String(32))
 
     # Адрес доставки
     city = Column(String(128))

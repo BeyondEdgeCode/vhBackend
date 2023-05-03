@@ -10,7 +10,7 @@ from api.app import db
 from datetime import datetime, timezone
 from api.app import jwt
 from apifairy import body, response, other_responses, authenticate
-from api.schemas.auth import LoginSchema, LoginResponseSchema, RegisterSchema, UserInfoSchema, UserSchema
+from api.schemas.auth import LoginSchema, LoginResponseSchema, RegisterSchema, UserInfoSchema, UserSchema, UserPasswordChangeSchema
 from flask_cors import cross_origin
 
 
@@ -93,3 +93,13 @@ def me_update(args: dict):
     db.session.add(user)
     db.session.commit()
     return jsonify(status=200, msg='Данные обновлены')
+
+
+@jwt_required()
+@body(UserPasswordChangeSchema)
+def change_password(args: dict):
+    user: User = db.session.get(User, current_user.id)
+    if user.update_password(old_password=args['old_password'], new_password=args['new_password']):
+        return jsonify(status=200, msg='Пароль успешно изменен.')
+    else:
+        return jsonify(status=401, msg='Старый пароль введен неверно.'), 401

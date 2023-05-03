@@ -26,3 +26,11 @@ class UserInfoSchema(ma.SQLAlchemySchema):
     role = fields.String()
     permissions = fields.List(fields.String())
     user = ma.Nested(UserSchema)
+
+
+class UserPasswordChangeSchema(ma.SQLAlchemySchema):
+    class Meta:
+        ordered = True
+
+    old_password = fields.Str(required=True)
+    new_password = fields.Str(required=True)
