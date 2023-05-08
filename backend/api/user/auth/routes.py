@@ -85,7 +85,7 @@ def me():
 
 
 @jwt_required()
-@body(UserSchema(exclude=['id', 'registrationDate', 'email_confirmed']))
+@body(UserSchema(exclude=['id', 'registrationDate', 'email_confirmed', 'email']))
 def me_update(args: dict):
     user = db.session.get(User, current_user.id)
     for k, v in args.items():
