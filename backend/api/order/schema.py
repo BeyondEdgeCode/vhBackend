@@ -41,6 +41,7 @@ class OrderSchema(ma.SQLAlchemySchema):
     promocode_ref = ma.Nested(PromocodeSchema(only=['key', 'value', 'promotype']))
     shop = ma.Nested(ShopSchema)
     items = Nested(OrderItemSchema(many=True))
+    created_at = ma.auto_field()
 
 
 class OrderIdSchema(ma.SQLAlchemySchema):
