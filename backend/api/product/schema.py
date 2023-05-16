@@ -2,7 +2,7 @@ import urllib
 
 from api.app import ma
 from api.models import Product, ProductAvailability, OtherImages
-from api.schemas.category import CategoryInfoSchema
+from api.schemas.category import CategoryInfoSchema, CategorySchema
 from api.schemas.shop import ShortShopSchema
 from marshmallow import validate
 
@@ -74,7 +74,7 @@ class ProductShortSchema(ma.SQLAlchemySchema):
         include_fk = True
 
     id = ma.auto_field(dump_only=True)
-    category = ma.Nested(CategoryInfoSchema, dump_only=True)
+    categories = ma.Nested(CategorySchema, dump_only=True)
     title = ma.auto_field(dump_only=True)
     description = ma.auto_field(dump_only=True)
     price = ma.auto_field(dump_only=True)

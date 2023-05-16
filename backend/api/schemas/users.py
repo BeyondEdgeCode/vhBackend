@@ -1,14 +1,38 @@
+from flask import current_app
+
 from api import ma
-from api.models import User
+from api.models import User, UserRole
 import re
 from marshmallow.exceptions import ValidationError
-from marshmallow.fields import Str
+from marshmallow.fields import Str, Method
 
 
 def check_phone(number) -> None:
     phonematch = re.compile("^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$")
     if not phonematch.match(number):
         raise ValidationError('Введен некорректный номер телефона.')
+
+
+class RoleSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = UserRole
+        ordered = True
+
+    id = ma.auto_field()
+    roleName = ma.auto_field()
+    roleDescription = ma.auto_field()
+    permissions = Method('get_permissions', dump_only=True)
+
+    def get_permissions(self, perm):
+        current_app.logger.info(type(perm))
+        return [i.permission.key for i in perm.permissions]
+
+
+class UserIdSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = User
+
+    id = ma.auto_field()
 
 
 class UserSchema(ma.SQLAlchemySchema):
@@ -20,6 +44,7 @@ class UserSchema(ma.SQLAlchemySchema):
     id = ma.auto_field()
     email = ma.auto_field()
     email_confirmed = ma.auto_field()
+    role = ma.Nested(RoleSchema)
     firstName = ma.auto_field()
     lastName = ma.auto_field()
     birthday = ma.auto_field()

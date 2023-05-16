@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import List
-from flask import jsonify, current_app
+from flask import jsonify, current_app, abort
 from sqlalchemy import and_, desc
 from sqlalchemy.engine import ScalarResult
 from api.models import Order, OrderItem, OrderStatus, Basket, DeliveryType, PaymentType
 from api.models import ProductAvailability, Promocode
 from apifairy import body, response, arguments
-from .schema import CreateOrderSchema, OrderSchema, OrderIdSchema, OrderLifecycleSchema, GetByAdminSchema
+from .schema import CreateOrderSchema, ShortOrderSchema, OrderSchema, OrderIdSchema, OrderLifecycleSchema, GetByAdminSchema
 from flask_jwt_extended import jwt_required, current_user
 from api.app import db
 from api.promocode.routes import check_min_sum, check_validity, find_intersection
@@ -89,7 +89,7 @@ def get_by_user():
 @jwt_required()
 @permission_required('admin.orders.read')
 @arguments(GetByAdminSchema)
-@response(OrderSchema(many=True))
+@response(ShortOrderSchema(many=True))
 def get_by_admin(args):
     def get_lambda_1(arg):
         if arg:
@@ -116,6 +116,17 @@ def get_by_admin(args):
     ).order_by(desc(Order.id)))
 
     return orders
+
+
+@jwt_required()
+@permission_required('admin.orders.read')
+@arguments(OrderIdSchema)
+@response(OrderSchema)
+def get_one_by_admin(args):
+    order = db.session.get(Order, args['id'])
+    if not order:
+        abort(404)
+    return order
 
 
 @jwt_required()

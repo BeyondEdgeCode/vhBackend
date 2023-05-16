@@ -1,4 +1,5 @@
 version: "3"
+
 services:
 
   postgres:
@@ -32,12 +33,29 @@ services:
     environment:
       - xpack.security.enabled=false
       - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     ports:
       - "9200:9200"
       - "9300:9300"
 
+  tailscale:
+    container_name: tailscale
+    image: tailscale/tailscale:latest
+    hostname: vhdocker
+    volumes:
+      - '/var/lib:/var/lib'
+      - '/dev/net/tun:/dev/net/tun'
+    network_mode: host
+    env_file:
+      - ./ts.env
+
+#  logstash:
+#    container_name: logstash
+#    image: logstash:8.7.0
+#    ports:
+#      - "5064:5064"
 
 volumes:
   postgres_data:

@@ -6,6 +6,7 @@ from api.promocode.schema import PromocodeSchema
 from api.schemas.shop import ShopSchema
 from marshmallow_enum import EnumField
 from api.product.schema import ProductShortSchema
+from api.schemas.users import UserSchema
 
 
 class OrderLifecycleSchema(ma.SQLAlchemySchema):
@@ -34,6 +35,7 @@ class OrderSchema(ma.SQLAlchemySchema):
         ordered = True
 
     id = ma.auto_field()
+    user = ma.Nested(UserSchema)
     status = EnumField(OrderStatus)
     delivery_type = EnumField(DeliveryType)
     payment_type = EnumField(PaymentType)
@@ -41,6 +43,18 @@ class OrderSchema(ma.SQLAlchemySchema):
     promocode_ref = ma.Nested(PromocodeSchema(only=['key', 'value', 'promotype']))
     shop = ma.Nested(ShopSchema)
     items = Nested(OrderItemSchema(many=True))
+    created_at = ma.auto_field()
+
+
+class ShortOrderSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Order
+        ordered = True
+
+    id = ma.auto_field()
+    status = EnumField(OrderStatus)
+    sum = ma.auto_field()
+    shop = ma.Nested(ShopSchema)
     created_at = ma.auto_field()
 
 

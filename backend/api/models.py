@@ -89,6 +89,7 @@ class User(db.Model):
     reviews = relationship('Reviews', back_populates='user')
     email_confirmations = relationship('EmailConfirmation', back_populates='user')
     revokedtokens = relationship('RevokedTokens', back_populates='user')
+    orders = relationship('Order', back_populates='user')
 
     def check_password(self, password) -> bool:
         return check_password_hash(self.password, password)
@@ -341,6 +342,7 @@ class Order(db.Model):
     reserved = relationship('ProductReserve', back_populates='order')
     items = relationship('OrderItem', back_populates='order')
     promocode_ref = relationship('Promocode', back_populates='used_at')
+    user = relationship('User', back_populates='orders')
 
 
 class OrderItem(db.Model):
