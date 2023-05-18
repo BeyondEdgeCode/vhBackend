@@ -74,7 +74,7 @@ services:
     ports:
       - "3000:3000"
     stdin_open: true
-    command: npm start
+    restart: unless-stopped
 
   frontend:
     build: https://github.com/BeyondEdgeCode/VH_front_client.git#main:shop
