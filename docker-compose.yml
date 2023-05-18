@@ -20,7 +20,7 @@ services:
     volumes:
       - backend_data:/usr/src/app/migrations
     ports:
-      - "80:5000"
+      - "5000:5000"
     env_file:
       - ./.env
     depends_on:
@@ -50,6 +50,17 @@ services:
     network_mode: host
     env_file:
       - ./ts.env
+
+  app:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
 
 #  logstash:
 #    container_name: logstash
