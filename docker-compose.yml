@@ -13,6 +13,7 @@ services:
       POSTGRES_PASSWORD: "testpassword1234"
     ports:
       - "5432:5432"
+    restart: unless-stopped
 
   backend:
     container_name: backend
@@ -25,7 +26,7 @@ services:
       - ./.env
     depends_on:
       - postgres
-    restart: always
+    restart: unless-stopped
 
   elastic:
     container_name: elastic
@@ -39,6 +40,7 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
+    restart: unless-stopped
 
   tailscale:
     container_name: tailscale
@@ -50,6 +52,7 @@ services:
     network_mode: host
     env_file:
       - ./ts.env
+    restart: unless-stopped
 
   app:
     image: 'jc21/nginx-proxy-manager:latest'
@@ -61,6 +64,11 @@ services:
     volumes:
       - ./data:/data
       - ./letsencrypt:/etc/letsencrypt
+
+  frontend:
+    build: https://github.com/BeyondEdgeCode/VH_front_client.git#main:shop
+    restart: unless-stopped
+
 
 #  logstash:
 #    container_name: logstash
