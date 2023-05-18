@@ -66,19 +66,19 @@ services:
       - ./letsencrypt:/etc/letsencrypt
 
   vhm:
-    container_name: vhm
     build: https://github.com/BeyondEdgeCode/vh-admin.git
-    volumes:
-      - './:/app'
-      - '/app/node_modules'
+    container_name: vhm
     ports:
-      - "3000:3000"
+      - '3000:3000'
+    volumes:
+      - ./:/app
+      - ./app/node_modules
     stdin_open: true
-    restart: unless-stopped
+    tty: true
 
-  frontend:
-    build: https://github.com/BeyondEdgeCode/VH_front_client.git#main:shop
-    restart: unless-stopped
+#  frontend:
+#    build: https://github.com/BeyondEdgeCode/VH_front_client.git#main:shop
+#    restart: unless-stopped
 
 
 #  logstash:
