@@ -31,7 +31,7 @@ def user_lookup_loader(_jwt_header, jwt_data):
 
 
 # @response(LoginResponseSchema)
-@cross_origin()
+@cross_origin(origins=['*'])
 @body(LoginSchema)
 def login(cred):
     user: User = get_first_or_false(User.select().where(User.email == cred['email']))
