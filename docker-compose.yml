@@ -71,8 +71,7 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - .:/app
-      - ./app/node_modules
+      - admin-nodemodules:/usr/src/admin/node_modules
     stdin_open: true
     tty: true
 
@@ -90,5 +89,6 @@ services:
 volumes:
   postgres_data:
   backend_data:
+  admin-nodemodules:
   elasticsearch-data:
     driver: local
