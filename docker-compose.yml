@@ -47,7 +47,7 @@ services:
     image: tailscale/tailscale:latest
     hostname: vhdocker
     volumes:
-      - '/var/lib:/var/lib'
+      - tailscale_data:/var/lib
       - '/dev/net/tun:/dev/net/tun'
     network_mode: host
     env_file:
@@ -87,6 +87,7 @@ services:
 #      - "5064:5064"
 
 volumes:
+  tailscale_data:
   postgres_data:
   backend_data:
   admin-nodemodules:
