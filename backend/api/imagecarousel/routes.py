@@ -41,3 +41,10 @@ def get_active():
         ImageCarousel.select().where(ImageCarousel.active == True)
     )
     return images
+
+
+@jwt_required()
+@permission_required('admin.imagecarousel.all')
+@response(icmany)
+def get_all():
+    return db.session.scalars(ImageCarousel.select())

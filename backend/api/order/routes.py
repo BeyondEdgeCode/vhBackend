@@ -24,35 +24,37 @@ def get_basket() -> List[Basket]:
 @jwt_required()
 @permission_required('admin.order.lifecycle')
 @body(OrderLifecycleSchema)
+@response(OrderSchema)
 def change_state(args):
     order: Order = db.session.get(Order, args['id'])
 
     if not order:
-        return jsonify(code=404, msg='Заказ не найден')
+        return jsonify(code=404, msg='Заказ не найден'), 404
 
     order.status = args['next_state']
     db.session.add(order)
     db.session.commit()
-    return jsonify(status=200, msg=f'Новый статус заказа №{order.id} - {order.status}')
+    return order
 
 
 @jwt_required()
 @permission_required('admin.order.cancel')
 @arguments(OrderIdSchema)
+@response(OrderSchema)
 def cancel_by_admin(args):
     order: Order = db.session.get(Order, args['id'])
 
     if not order:
-        return jsonify(code=404, msg='Заказ не найден')
+        return jsonify(code=404, msg='Заказ не найден'), 404
 
     if order.status == OrderStatus.canceled_by_user or order.status == OrderStatus.canceled_by_system:
-        return jsonify(code=409, msg='Заказ уже отменен.')
+        return jsonify(code=400, msg='Заказ уже отменен.'), 400
 
     order.status = OrderStatus.canceled_by_system
     db.session.add(order)
     db.session.commit()
 
-    return jsonify(code=200, msg=f'Заказ №{order.id} отменен.')
+    return order
 
 
 @jwt_required()
@@ -60,16 +62,16 @@ def cancel_by_admin(args):
 def cancel_by_user(args):
     order: Order = db.session.get(Order, args['id'])
     if not order:
-        return jsonify(code=404, msg='Заказ не найден')
+        return jsonify(code=404, msg='Заказ не найден'), 404
 
     if order.user_fk != current_user.id:
-        return jsonify(code=403, msg='Нет доступа.')
+        return jsonify(code=403, msg='Нет доступа.'), 403
 
     if order.status == OrderStatus.canceled_by_user or order.status == OrderStatus.canceled_by_system:
-        return jsonify(code=400, msg='Заказ уже отменен.')
+        return jsonify(code=400, msg='Заказ уже отменен.'), 400
 
     if order.status == OrderStatus.finished:
-        return jsonify(code=400, msg='Завершенный заказ нельзя отменить.')
+        return jsonify(code=400, msg='Завершенный заказ нельзя отменить.'), 400
 
     order.status = OrderStatus.canceled_by_user
     db.session.add(order)
@@ -137,7 +139,7 @@ def create(payload):
     user_basket: List[Basket] = get_basket()
 
     if not user_basket:
-        return jsonify(status=400, msg='Ошибка при создании заказа, корзина пуста.')
+        return jsonify(status=400, msg='Ошибка при создании заказа, корзина пуста.'), 400
 
     if payload['promocode']:
         promocode: Promocode = db.session.scalar(
