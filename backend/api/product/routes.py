@@ -20,6 +20,13 @@ def get_by_category(args):
     return products
 
 
+@jwt_required()
+@permission_required('admin.product.read')
+@response(ProductSchema(many=True))
+def admin_read():
+    return db.session.scalars(Product.select())
+
+
 @cache.cached(120)
 @arguments(SearchBySubCategorySchema)
 @response(ProductSchema(many=True))

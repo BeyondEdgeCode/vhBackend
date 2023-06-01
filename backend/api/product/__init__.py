@@ -1,5 +1,6 @@
 from flask import Blueprint
 from .routes import get_by_category, get_by_subcategory, create, get_last_created, get_one
+from .routes import admin_read
 # from .routes import get_specifications, edit_specification
 from .reviews import reviews
 from .filters import filters
@@ -15,6 +16,7 @@ product.add_url_rule('/product/get_by_category', 'product_get_by_category', get_
 product.add_url_rule('/product/get_by_subcategory', 'product_get_by_subcategory', get_by_subcategory, methods=['GET'])
 product.add_url_rule('/product', 'product_create', create, methods=['POST'])
 product.add_url_rule('/product/<int:product_id>', 'product_get_one', get_one, methods=['GET'])
+product.add_url_rule('/product/get_all', 'admin_read', admin_read, methods=['GET'])
 # product.add_url_rule('/product/specification', 'product_specifications_get', get_specifications, methods=['GET'])
 # product.add_url_rule('/product/specification', 'product_specifications_add', add_specifications, methods=['POST'])
 # product.add_url_rule('/product/specification', 'product_specifications_patch', edit_specification, methods=['PATCH'])
