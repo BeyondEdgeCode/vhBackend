@@ -56,7 +56,7 @@ def get_db_items():
 @permission_required('admin.s3.upload')
 def upload():
     if 'image' not in request.files:
-        return jsonify(code=400, error='File not found in payload'), 400
+        return jsonify(status=400, msg='File not found in payload'), 400
 
     file = request.files['image']
     if file and allowed_file(file.filename):
@@ -73,6 +73,6 @@ def upload():
         db.session.add(obj)
         db.session.commit()
         os.remove(saved_filename)
-        return jsonify(code=200, id=obj.id)
-    return jsonify(code=400, error='File extension is not allowed')
+        return jsonify(status=200, msg='Created', id=obj.id)
+    return jsonify(code=400, msg='File extension is not allowed')
 

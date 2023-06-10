@@ -25,12 +25,12 @@ def create(args):
                         )
             )
     ):
-        return jsonify(status=409, error='Already exits')
+        return jsonify(status=409, error='Already exits'), 409
 
     review = Reviews(**args, user_id=current_user.id)
     db.session.add(review)
     db.session.commit()
-    return jsonify(status=200, error='Created')
+    return jsonify(status=200, error='Created'), 200
 
 
 @cache.cached(600)

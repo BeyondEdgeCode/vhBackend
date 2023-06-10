@@ -24,7 +24,7 @@ def create():
     db.session.add(new_category)
     db.session.commit()
 
-    return jsonify(code=200, id=new_category.id), 200
+    return jsonify(status=200, msg='created', id=new_category.id), 200
 
 
 @jwt_required()
@@ -39,7 +39,7 @@ def create_subcategory():
     new_subcategory = SubCategory(title=title, category_fk=category_id)
     db.session.add(new_subcategory)
     db.session.commit()
-    return jsonify(code=200, id=new_subcategory.id)
+    return jsonify(status=200, msg='created', id=new_subcategory.id), 200
 
 
 @cache.cached(600)

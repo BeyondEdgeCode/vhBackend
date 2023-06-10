@@ -29,7 +29,7 @@ def change_state(args):
     order: Order = db.session.get(Order, args['id'])
 
     if not order:
-        return jsonify(code=404, msg='Заказ не найден'), 404
+        return jsonify(status=404, msg='Заказ не найден'), 404
 
     order.status = args['next_state']
     db.session.add(order)
@@ -45,10 +45,10 @@ def cancel_by_admin(args):
     order: Order = db.session.get(Order, args['id'])
 
     if not order:
-        return jsonify(code=404, msg='Заказ не найден'), 404
+        return jsonify(status=404, msg='Заказ не найден'), 404
 
     if order.status == OrderStatus.canceled_by_user or order.status == OrderStatus.canceled_by_system:
-        return jsonify(code=400, msg='Заказ уже отменен.'), 400
+        return jsonify(status=400, msg='Заказ уже отменен.'), 400
 
     order.status = OrderStatus.canceled_by_system
     db.session.add(order)
@@ -62,21 +62,21 @@ def cancel_by_admin(args):
 def cancel_by_user(args):
     order: Order = db.session.get(Order, args['id'])
     if not order:
-        return jsonify(code=404, msg='Заказ не найден'), 404
+        return jsonify(status=404, msg='Заказ не найден'), 404
 
     if order.user_fk != current_user.id:
-        return jsonify(code=403, msg='Нет доступа.'), 403
+        return jsonify(status=403, msg='Нет доступа.'), 403
 
     if order.status == OrderStatus.canceled_by_user or order.status == OrderStatus.canceled_by_system:
-        return jsonify(code=400, msg='Заказ уже отменен.'), 400
+        return jsonify(status=400, msg='Заказ уже отменен.'), 400
 
     if order.status == OrderStatus.finished:
-        return jsonify(code=400, msg='Завершенный заказ нельзя отменить.'), 400
+        return jsonify(status=400, msg='Завершенный заказ нельзя отменить.'), 400
 
     order.status = OrderStatus.canceled_by_user
     db.session.add(order)
     db.session.commit()
-    return jsonify(code=200, msg=f'Заказ №{order.id} отменен.')
+    return jsonify(status=200, msg=f'Заказ №{order.id} отменен.')
 
 
 @jwt_required()
@@ -192,7 +192,7 @@ def create(payload):
             )
 
     if not order_items_list:
-        return jsonify(status=400, msg='Ошибка при создании заказа, доступные товары не найдены.')
+        return jsonify(status=400, msg='Ошибка при создании заказа, доступные товары не найдены.'), 400
 
     if promocode and promocode.promotype.type == 'fixed':
         basket_sum -= promocode.value

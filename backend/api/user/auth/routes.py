@@ -36,12 +36,12 @@ def user_lookup_loader(_jwt_header, jwt_data):
 def login(cred):
     user: User = get_first_or_false(User.select().where(User.email == cred['email']))
     if not user:
-        return jsonify(status=401, error='Wrong login or password')
+        return jsonify(status=401, msg='Wrong login or password'), 401
     if not user.check_password(cred['password']):
-        return jsonify(status=401, error='Wrong login or password')
+        return jsonify(status=401, msg='Wrong login or password'), 401
 
     if not user.email_confirmed:
-        return jsonify(status=403, error='Email is not confirmed')
+        return jsonify(status=403, msg='Email is not confirmed'), 403
 
     return {'access_token': create_access_token(identity=user), 'refresh_token': create_refresh_token(identity=user)}
 
@@ -63,7 +63,7 @@ def logout():
 def register(user_info):
     # TODO: Add birthday check
     if get_first_or_false(User.select().where(User.email == user_info['email'])):
-        return jsonify(internal_code=1003, error='Email is used'), 400
+        return jsonify(status=400, msg='Email is used'), 400
 
     default_role = get_first(UserRole.select().where(UserRole.is_default == True))
     user = User(email=user_info['email'], password=generate_password_hash(user_info['password']),
@@ -100,6 +100,6 @@ def me_update(args: dict):
 def change_password(args: dict):
     user: User = db.session.get(User, current_user.id)
     if user.update_password(old_password=args['old_password'], new_password=args['new_password']):
-        return jsonify(status=200, msg='Пароль успешно изменен.')
+        return jsonify(status=200, msg='Пароль успешно изменен.'), 200
     else:
         return jsonify(status=401, msg='Старый пароль введен неверно.'), 401

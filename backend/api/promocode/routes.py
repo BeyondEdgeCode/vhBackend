@@ -20,7 +20,7 @@ def create_promotype(args):
     new_type = PromoType(**args)
     db.session.add(new_type)
     db.session.commit()
-    return jsonify(status=200, msg='Создан')
+    return jsonify(status=200, msg='Создан'), 200
 
 
 @jwt_required()
@@ -38,7 +38,7 @@ def create(args):
     new_promocode = Promocode(**args)
     db.session.add(new_promocode)
     db.session.commit()
-    return jsonify(status=200, msg='Создан')
+    return jsonify(status=200, msg='Создан'), 200
 
 
 @jwt_required()
@@ -50,7 +50,7 @@ def assign(args):
     print(args)
 
     if not promocode:
-        return jsonify(status=404, msg='Промокод не найден')
+        return jsonify(status=404, msg='Промокод не найден'), 404
 
     total_added = 0
     total_errors = 0
@@ -101,7 +101,7 @@ def assign(args):
             assigned.add(product.id)
 
     db.session.commit()
-    return jsonify(status=200, added=total_added, skipped=total_errors)
+    return jsonify(status=200, msg='created', added=total_added, skipped=total_errors), 200
 
 
 @jwt_required()
@@ -121,15 +121,15 @@ def get():
 def check_validity(promocode):
     if not promocode:
         current_app.logger.info('Promocode not found')
-        return jsonify(status=404, msg='Промокод не найден')
+        return jsonify(status=404, msg='Промокод не найден'), 404
 
     if promocode.current_usages >= promocode.max_usages:
         current_app.logger.info('promocode.current_usages >= promocode.max_usages')
-        return jsonify(status=404, msg='Промокод достиг максимума использований')
+        return jsonify(status=404, msg='Промокод достиг максимума использований'), 404
 
     if datetime.datetime.now() >= promocode.available_until:
         current_app.logger.info('promocode.available_until >= datetime.datetime.now()')
-        return jsonify(status=404, msg='Срок действия промокода истек')
+        return jsonify(status=404, msg='Срок действия промокода истек'), 404
 
 
 def find_intersection(promocode):
@@ -164,7 +164,7 @@ def find_intersection(promocode):
 def check_min_sum(intersection, basket_intersection_sum, promocode):
     if not intersection or basket_intersection_sum < promocode.min_sum:
         return jsonify(error=400,
-                       msg=f'Не выполнено условие, минимальная сумма акционных товаров: {promocode.min_sum} руб.')
+                       msg=f'Не выполнено условие, минимальная сумма акционных товаров: {promocode.min_sum} руб.'), 400
     else:
         return True
 

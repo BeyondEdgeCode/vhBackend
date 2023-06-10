@@ -23,5 +23,5 @@ def add():
     except IntegrityError as e:
         return catch_exception(e, 'Введено не уникальное значение')
 
-    return jsonify(code=200, id=permission.id)
+    return jsonify(code=200, msg='created', id=permission.id)
 
